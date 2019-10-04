@@ -2,8 +2,7 @@ const Gettext = imports.gettext; // ++ Needed for translations
 const GLib = imports.gi.GLib; // ++ Needed for starting programs and translations
 const Gio = imports.gi.Gio; // Needed for file infos
 
-
-const UUID="SpicesUpdate@claudiux";
+const UUID = "SpicesUpdate@claudiux";
 
 const HOME_DIR = GLib.get_home_dir();
 
@@ -14,9 +13,11 @@ const HOME_DIR = GLib.get_home_dir();
 //const DEBUG = _debug.query_exists(null);
 
 function DEBUG() {
-  let _debug = Gio.file_new_for_path(HOME_DIR + "/.local/share/cinnamon/applets/" + UUID + "/DEBUG");
+  let _debug = Gio.file_new_for_path(
+    HOME_DIR + "/.local/share/cinnamon/applets/" + UUID + "/DEBUG"
+  );
   return _debug.query_exists(null);
-};
+}
 
 const DOWNLOAD_TIME = 2;
 
@@ -25,61 +26,65 @@ const SCRIPTS_DIR = APPLET_DIR + "/scripts";
 const ICONS_DIR = APPLET_DIR + "/icons";
 const HELP_DIR = APPLET_DIR + "/help";
 
-
-const CINNAMON_VERSION_ARRAY = GLib.getenv('CINNAMON_VERSION').split(".").slice(0,2);
+const CINNAMON_VERSION_ARRAY = GLib.getenv("CINNAMON_VERSION")
+  .split(".")
+  .slice(0, 2);
 const CINNAMON_VERSION = CINNAMON_VERSION_ARRAY.join(".");
-const CS_PATH = "%s/cs/%s/cinnamon-settings.py".format(APPLET_DIR, CINNAMON_VERSION, );
+const CS_PATH = "%s/cs/%s/cinnamon-settings.py".format(
+  APPLET_DIR,
+  CINNAMON_VERSION
+);
 
 const URL_SPICES_HOME = "https://cinnamon-spices.linuxmint.com";
 const CONFIG_DIR = HOME_DIR + "/.cinnamon/configs";
 const SU_CONFIG_DIR = CONFIG_DIR + "/" + UUID;
 const CACHE_DIR = HOME_DIR + "/.cinnamon/spices.cache";
 
-const TYPES = ['applets', 'desklets', 'extensions', 'themes'];
+const TYPES = ["applets", "desklets", "extensions", "themes"];
 
 const URL_MAP = {
-  'applets': URL_SPICES_HOME + "/json/applets.json?",
-  'themes': URL_SPICES_HOME + "/json/themes.json?",
-  'desklets': URL_SPICES_HOME + "/json/desklets.json?",
-  'extensions': URL_SPICES_HOME + "/json/extensions.json?"
-}
+  applets: URL_SPICES_HOME + "/json/applets.json?",
+  themes: URL_SPICES_HOME + "/json/themes.json?",
+  desklets: URL_SPICES_HOME + "/json/desklets.json?",
+  extensions: URL_SPICES_HOME + "/json/extensions.json?"
+};
 
 const CACHE_MAP = {
-  'applets': CACHE_DIR + "/applet/index.json",
-  'themes': CACHE_DIR + "/theme/index.json",
-  'desklets': CACHE_DIR + "/desklet/index.json",
-  'extensions': CACHE_DIR + "/extension/index.json"
-}
+  applets: CACHE_DIR + "/applet/index.json",
+  themes: CACHE_DIR + "/theme/index.json",
+  desklets: CACHE_DIR + "/desklet/index.json",
+  extensions: CACHE_DIR + "/extension/index.json"
+};
 
 const DIR_MAP = {
-  'applets': HOME_DIR + "/.local/share/cinnamon/applets",
-  'themes': HOME_DIR + "/.themes",
-  'desklets': HOME_DIR + "/.local/share/cinnamon/desklets",
-  'extensions': HOME_DIR + "/.local/share/cinnamon/extensions"
-}
+  applets: HOME_DIR + "/.local/share/cinnamon/applets",
+  themes: HOME_DIR + "/.themes",
+  desklets: HOME_DIR + "/.local/share/cinnamon/desklets",
+  extensions: HOME_DIR + "/.local/share/cinnamon/extensions"
+};
 
 const DCONFCACHEUPDATED = {
-  'applets': "org.cinnamon",
-  'themes': "org.cinnamon.theme",
-  'desklets': "org.cinnamon",
-  'extensions': "org.cinnamon"
-}
+  applets: "org.cinnamon",
+  themes: "org.cinnamon.theme",
+  desklets: "org.cinnamon",
+  extensions: "org.cinnamon"
+};
 
 // ++ l10n support
 Gettext.bindtextdomain(UUID, HOME_DIR + "/.local/share/locale");
 Gettext.bindtextdomain("cinnamon-control-center", "/usr/share/locale");
 
 // ++ Always needed if you want localisation/translation support
-function _(str, uuid=UUID) {
+function _(str, uuid = UUID) {
   var customTrans = Gettext.dgettext(uuid, str);
   if (customTrans !== str && customTrans !== "") return customTrans;
   return Gettext.gettext(str);
 }
 
-const capitalize = (s) => {
-  if (typeof s !== 'string') return '';
-  return s.charAt(0).toUpperCase() + s.slice(1)
-}
+const capitalize = s => {
+  if (typeof s !== "string") return "";
+  return s.charAt(0).toUpperCase() + s.slice(1);
+};
 
 // ++ Useful for logging in .xsession_errors
 /**
@@ -88,12 +93,12 @@ const capitalize = (s) => {
  * log("Any message here", true) to log the message even if DEBUG is set to false.
  * logError("Any error message") log the error message regardless of the DEBUG value.
  */
-function log(message, alwaysLog=false) {
+function log(message, alwaysLog = false) {
   if (DEBUG() || alwaysLog) global.log("\n[" + UUID + "]: " + message + "\n");
 }
 
 function logError(error) {
-  global.logError("\n[" + UUID + "]: " + error + "\n")
+  global.logError("\n[" + UUID + "]: " + error + "\n");
 }
 
 // Dummy bidon variable for translation (don't remove these lines):
@@ -124,18 +129,32 @@ bidon = _("New themes available:");
 bidon = null;
 
 const EXP1 = {
-  "applets": _("If you do not want an applet to be checked, uncheck its first box."),
-  "desklets": _("If you do not want a desklet to be checked, uncheck its first box."),
-  "extensions": _("If you do not want an extension to be checked, uncheck its first box."),
-  "themes": _("If you do not want a theme to be checked, uncheck its first box.")
-}
+  applets: _(
+    "If you do not want an applet to be checked, uncheck its first box."
+  ),
+  desklets: _(
+    "If you do not want a desklet to be checked, uncheck its first box."
+  ),
+  extensions: _(
+    "If you do not want an extension to be checked, uncheck its first box."
+  ),
+  themes: _("If you do not want a theme to be checked, uncheck its first box.")
+};
 
 const EXP2 = {
-  "applets": _("If you want to get the latest version of an applet now, check both boxes."),
-  "desklets": _("If you want to get the latest version of a desklet now, check both boxes."),
-  "extensions": _("If you want to get the latest version of an extension now, check both boxes."),
-  "themes": _("If you want to get the latest version of a theme now, check both boxes.")
-}
+  applets: _(
+    "If you want to get the latest version of an applet now, check both boxes."
+  ),
+  desklets: _(
+    "If you want to get the latest version of a desklet now, check both boxes."
+  ),
+  extensions: _(
+    "If you want to get the latest version of an extension now, check both boxes."
+  ),
+  themes: _(
+    "If you want to get the latest version of a theme now, check both boxes."
+  )
+};
 
 const EXP3 = _("When all your choices are made, click the Refresh button.");
 
@@ -158,7 +177,9 @@ module.exports = {
   DCONFCACHEUPDATED,
   DOWNLOAD_TIME,
   _,
-  EXP1, EXP2, EXP3,
+  EXP1,
+  EXP2,
+  EXP3,
   DEBUG,
   capitalize,
   log,
