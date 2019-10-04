@@ -1,10 +1,14 @@
 #!/usr/bin/python3
-
 import sys
-from ExtensionCore import ManageSpicesPage, DownloadSpicesPage
-from SettingsWidgets import SidePage, SettingsStack
+
+from ExtensionCore import DownloadSpicesPage
+from ExtensionCore import ManageSpicesPage
+from gi.repository import Gdk
+from gi.repository import GLib
+from gi.repository import Gtk
+from SettingsWidgets import SettingsStack
+from SettingsWidgets import SidePage
 from SUSpices import SU_Spice_Harvester
-from gi.repository import GLib, Gtk, Gdk
 
 print("SU 4.3 cs_applets.py")
 

@@ -1,25 +1,27 @@
 #!/usr/bin/python3
-
-import SettingsWidgets
-import proxygsettings
-import capi
-from gi.repository import Gio, Gtk, Pango, Gdk, XApp
 import getopt
-import sys
-
-import os
-import glob
 import gettext
+import glob
+import locale
+import os
+import sys
 import time
 import traceback
-import locale
+import unicodedata
 import urllib.request as urllib
 from functools import cmp_to_key
-import unicodedata
-import config
-from setproctitle import setproctitle
 
+import capi
+import config
 import gi
+import proxygsettings
+import SettingsWidgets
+from gi.repository import Gdk
+from gi.repository import Gio
+from gi.repository import Gtk
+from gi.repository import Pango
+from gi.repository import XApp
+from setproctitle import setproctitle
 
 gi.require_version("Gtk", "3.0")
 gi.require_version("XApp", "1.0")

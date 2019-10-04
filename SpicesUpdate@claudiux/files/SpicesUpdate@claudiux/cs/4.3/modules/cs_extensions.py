@@ -1,9 +1,10 @@
 #!/usr/bin/python3
-
-from ExtensionCore import ManageSpicesPage, DownloadSpicesPage
-from SettingsWidgets import SidePage, SettingsStack
-from SUSpices import SU_Spice_Harvester
+from ExtensionCore import DownloadSpicesPage
+from ExtensionCore import ManageSpicesPage
 from gi.repository import GLib
+from SettingsWidgets import SettingsStack
+from SettingsWidgets import SidePage
+from SUSpices import SU_Spice_Harvester
 
 
 class Module:

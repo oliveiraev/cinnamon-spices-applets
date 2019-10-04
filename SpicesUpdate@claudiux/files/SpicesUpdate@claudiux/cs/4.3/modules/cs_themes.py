@@ -1,20 +1,17 @@
 #!/usr/bin/python3
-
-from gi.repository.Gtk import SizeGroup, SizeGroupMode
-
-from GSettingsWidgets import *
-from CinnamonGtkSettings import (
-    CssRange,
-    CssOverrideSwitch,
-    GtkSettingsSwitch,
-    PreviewWidget,
-    Gtk2ScrollbarSizeEditor,
-)
-from SettingsWidgets import LabelRow
-from ExtensionCore import DownloadSpicesPage
-from SUSpices import SU_Spice_Harvester
-
 import glob
+
+from CinnamonGtkSettings import CssOverrideSwitch
+from CinnamonGtkSettings import CssRange
+from CinnamonGtkSettings import Gtk2ScrollbarSizeEditor
+from CinnamonGtkSettings import GtkSettingsSwitch
+from CinnamonGtkSettings import PreviewWidget
+from ExtensionCore import DownloadSpicesPage
+from gi.repository.Gtk import SizeGroup
+from gi.repository.Gtk import SizeGroupMode
+from GSettingsWidgets import *
+from SettingsWidgets import LabelRow
+from SUSpices import SU_Spice_Harvester
 
 ICON_SIZE = 48
 

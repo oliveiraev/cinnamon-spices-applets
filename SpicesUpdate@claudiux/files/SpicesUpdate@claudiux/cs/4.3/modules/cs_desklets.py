@@ -1,9 +1,10 @@
 #!/usr/bin/python3
-
-from ExtensionCore import ManageSpicesPage, DownloadSpicesPage
-from SUSpices import SU_Spice_Harvester
+from ExtensionCore import DownloadSpicesPage
+from ExtensionCore import ManageSpicesPage
+from gi.repository import GLib
+from gi.repository import Gtk
 from GSettingsWidgets import *
-from gi.repository import GLib, Gtk
+from SUSpices import SU_Spice_Harvester
 
 
 class Module:
