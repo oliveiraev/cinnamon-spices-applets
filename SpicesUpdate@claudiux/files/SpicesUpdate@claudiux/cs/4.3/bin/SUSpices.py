@@ -36,8 +36,10 @@ ABORT_NONE = 0
 ABORT_ERROR = 1
 ABORT_USER = 2
 
+
 def ui_thread_do(callback, *args):
-    GLib.idle_add (callback, *args, priority=GLib.PRIORITY_DEFAULT)
+    GLib.idle_add(callback, *args, priority=GLib.PRIORITY_DEFAULT)
+
 
 def removeEmptyFolders(path):
     if not os.path.isdir(path):
@@ -57,12 +59,14 @@ def removeEmptyFolders(path):
         print("Removing empty folder:", path)
         os.rmdir(path)
 
+
 class SU_Spice_Harvester(Spice_Harvester):
     def __init__(self, collection_type, window=None):
         super(SU_Spice_Harvester, self).__init__(collection_type, window)
 
     def _download_cache(self, load_assets=True):
-        download_url = URL_MAP[self.collection_type] + "?" + str(uuidlib.uuid4())
+        download_url = URL_MAP[self.collection_type] + \
+            "?" + str(uuidlib.uuid4())
 
         filename = os.path.join(self.cache_folder, "index.json")
         if self._download(filename, download_url, binary=False) is None:
@@ -72,9 +76,9 @@ class SU_Spice_Harvester(Spice_Harvester):
         self._download_image_cache()
 
     def _url_retrieve(self, url, outfd, reporthook, binary):
-        #Like the one in urllib. Unlike urllib.retrieve url_retrieve
-        #can be interrupted. KeyboardInterrupt exception is raised when
-        #interrupted.
+        # Like the one in urllib. Unlike urllib.retrieve url_retrieve
+        # can be interrupted. KeyboardInterrupt exception is raised when
+        # interrupted.
         count = 0
         blockSize = 1024 * 8
         parsed_url = urlparse(url)
@@ -86,8 +90,10 @@ class SU_Spice_Harvester(Spice_Harvester):
                 connection.set_tunnel(host)
             else:
                 connection = HTTPSConnection(host, timeout=15)
-            headers = { "Accept-Encoding": "identity", "Host": host, "User-Agent": "Python/3" }
-            connection.request("GET", parsed_url.path + "?" + parsed_url.query, headers=headers)
+            headers = {"Accept-Encoding": "identity",
+                       "Host": host, "User-Agent": "Python/3"}
+            connection.request("GET", parsed_url.path + "?" +
+                               parsed_url.query, headers=headers)
             urlobj = connection.getresponse()
             if urlobj.getcode() != 200:
                 self.abort()
@@ -110,7 +116,8 @@ class SU_Spice_Harvester(Spice_Harvester):
     def _install(self, job):
         uuid = job['uuid']
 
-        download_url = URL_SPICES_HOME + self.index_cache[uuid]['file'] + "?" + str(uuidlib.uuid4())
+        download_url = URL_SPICES_HOME + \
+            self.index_cache[uuid]['file'] + "?" + str(uuidlib.uuid4())
         self.current_uuid = uuid
 
         ziptempfile = tempfile.mkstemp()[1]
@@ -129,7 +136,8 @@ class SU_Spice_Harvester(Spice_Harvester):
             self.install_from_folder(uuidfolder, uuid, True)
         except Exception as detail:
             if not self.abort_download:
-                self.errorMessage(_("An error occurred during the installation of %s. Please report this incident to its developer.") % uuid, str(detail))
+                self.errorMessage(
+                    _("An error occurred during the installation of %s. Please report this incident to its developer.") % uuid, str(detail))
             return
 
         try:
