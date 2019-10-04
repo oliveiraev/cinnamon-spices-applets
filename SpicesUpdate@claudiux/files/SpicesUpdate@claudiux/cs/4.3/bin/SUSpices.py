@@ -21,15 +21,15 @@ from Spices import *
 print("SU %s Spices.py" % os.path.abspath(sys.argv[0]).split("/")[-2])
 
 home = os.path.expanduser("~")
-locale_inst = '%s/.local/share/locale' % home
-settings_dir = '%s/.cinnamon/configs/' % home
+locale_inst = "%s/.local/share/locale" % home
+settings_dir = "%s/.cinnamon/configs/" % home
 
 URL_SPICES_HOME = "https://cinnamon-spices.linuxmint.com"
 URL_MAP = {
-    'applet': URL_SPICES_HOME + "/json/applets.json",
-    'theme': URL_SPICES_HOME + "/json/themes.json",
-    'desklet': URL_SPICES_HOME + "/json/desklets.json",
-    'extension': URL_SPICES_HOME + "/json/extensions.json"
+    "applet": URL_SPICES_HOME + "/json/applets.json",
+    "theme": URL_SPICES_HOME + "/json/themes.json",
+    "desklet": URL_SPICES_HOME + "/json/desklets.json",
+    "extension": URL_SPICES_HOME + "/json/extensions.json",
 }
 
 ABORT_NONE = 0
@@ -65,8 +65,7 @@ class SU_Spice_Harvester(Spice_Harvester):
         super(SU_Spice_Harvester, self).__init__(collection_type, window)
 
     def _download_cache(self, load_assets=True):
-        download_url = URL_MAP[self.collection_type] + \
-            "?" + str(uuidlib.uuid4())
+        download_url = URL_MAP[self.collection_type] + "?" + str(uuidlib.uuid4())
 
         filename = os.path.join(self.cache_folder, "index.json")
         if self._download(filename, download_url, binary=False) is None:
@@ -85,21 +84,25 @@ class SU_Spice_Harvester(Spice_Harvester):
         host = parsed_url.netloc
         try:
             proxy = proxygsettings.get_proxy_settings()
-            if proxy and proxy.get('https'):
-                connection = HTTPSConnection(proxy.get('https'), timeout=15)
+            if proxy and proxy.get("https"):
+                connection = HTTPSConnection(proxy.get("https"), timeout=15)
                 connection.set_tunnel(host)
             else:
                 connection = HTTPSConnection(host, timeout=15)
-            headers = {"Accept-Encoding": "identity",
-                       "Host": host, "User-Agent": "Python/3"}
-            connection.request("GET", parsed_url.path + "?" +
-                               parsed_url.query, headers=headers)
+            headers = {
+                "Accept-Encoding": "identity",
+                "Host": host,
+                "User-Agent": "Python/3",
+            }
+            connection.request(
+                "GET", parsed_url.path + "?" + parsed_url.query, headers=headers
+            )
             urlobj = connection.getresponse()
             if urlobj.getcode() != 200:
                 self.abort()
                 return None
 
-            totalSize = int(urlobj.info()['content-length'])
+            totalSize = int(urlobj.info()["content-length"])
 
             while not self._is_aborted():
                 data = urlobj.read(blockSize)
@@ -114,10 +117,14 @@ class SU_Spice_Harvester(Spice_Harvester):
             raise e
 
     def _install(self, job):
-        uuid = job['uuid']
+        uuid = job["uuid"]
 
-        download_url = URL_SPICES_HOME + \
-            self.index_cache[uuid]['file'] + "?" + str(uuidlib.uuid4())
+        download_url = (
+            URL_SPICES_HOME
+            + self.index_cache[uuid]["file"]
+            + "?"
+            + str(uuidlib.uuid4())
+        )
         self.current_uuid = uuid
 
         ziptempfile = tempfile.mkstemp()[1]
@@ -137,7 +144,12 @@ class SU_Spice_Harvester(Spice_Harvester):
         except Exception as detail:
             if not self.abort_download:
                 self.errorMessage(
-                    _("An error occurred during the installation of %s. Please report this incident to its developer.") % uuid, str(detail))
+                    _(
+                        "An error occurred during the installation of %s. Please report this incident to its developer."
+                    )
+                    % uuid,
+                    str(detail),
+                )
             return
 
         try:

@@ -20,8 +20,9 @@ import config
 from setproctitle import setproctitle
 
 import gi
-gi.require_version('Gtk', '3.0')
-gi.require_version('XApp', '1.0')
+
+gi.require_version("Gtk", "3.0")
+gi.require_version("XApp", "1.0")
 
 sys.path.append(config.currentPath + "/modules")
 sys.path.append(config.currentPath + "/bin")
@@ -38,7 +39,7 @@ if len(mod_files) == 0:
     print("No settings modules found!!")
     sys.exit(1)
 
-mod_files = [x.split('/')[-1].split('.')[0] for x in mod_files]
+mod_files = [x.split("/")[-1].split(".")[0] for x in mod_files]
 
 for mod_file in mod_files:
     if mod_file[0:3] != "cs_":
@@ -63,110 +64,220 @@ MOUSE_BACK_BUTTON = 8
 
 CATEGORIES = [
     #        Display name                         ID              Show it? Always False to start              Icon
-    {"label": _("Appearance"),            "id": "appear",
-     "show": False,                       "icon": "cs-cat-appearance"},
-    {"label": _("Preferences"),           "id": "prefs",
-     "show": False,                       "icon": "cs-cat-prefs"},
-    {"label": _("Hardware"),              "id": "hardware",
-     "show": False,                       "icon": "cs-cat-hardware"},
-    {"label": _("Administration"),        "id": "admin",
-     "show": False,                       "icon": "cs-cat-admin"}
+    {
+        "label": _("Appearance"),
+        "id": "appear",
+        "show": False,
+        "icon": "cs-cat-appearance",
+    },
+    {"label": _("Preferences"), "id": "prefs", "show": False, "icon": "cs-cat-prefs"},
+    {
+        "label": _("Hardware"),
+        "id": "hardware",
+        "show": False,
+        "icon": "cs-cat-hardware",
+    },
+    {
+        "label": _("Administration"),
+        "id": "admin",
+        "show": False,
+        "icon": "cs-cat-admin",
+    },
 ]
 
 CONTROL_CENTER_MODULES = [
     #         Label                              Module ID                Icon                         Category      Keywords for filter
-    [_("Network"),                          "network",            "cs-network",
-     "hardware",      _("network, wireless, wifi, ethernet, broadband, internet")],
-    [_("Display"),                          "display",            "cs-display",
-     "hardware",      _("display, screen, monitor, layout, resolution, dual, lcd")],
-    [_("Color"),                            "color",              "cs-color",
-     "hardware",      _("color, profile, display, printer, output")],
-    [_("Graphics Tablet"),                  "wacom",              "cs-tablet",
-     "hardware",      _("wacom, digitize, tablet, graphics, calibrate, stylus")]
+    [
+        _("Network"),
+        "network",
+        "cs-network",
+        "hardware",
+        _("network, wireless, wifi, ethernet, broadband, internet"),
+    ],
+    [
+        _("Display"),
+        "display",
+        "cs-display",
+        "hardware",
+        _("display, screen, monitor, layout, resolution, dual, lcd"),
+    ],
+    [
+        _("Color"),
+        "color",
+        "cs-color",
+        "hardware",
+        _("color, profile, display, printer, output"),
+    ],
+    [
+        _("Graphics Tablet"),
+        "wacom",
+        "cs-tablet",
+        "hardware",
+        _("wacom, digitize, tablet, graphics, calibrate, stylus"),
+    ],
 ]
 
 STANDALONE_MODULES = [
     #         Label                          Executable                          Icon                Category        Keywords for filter
-    [_("Printers"),                      "system-config-printer",
-     "cs-printer",         "hardware",       _("printers, laser, inkjet")],
-    [_("Firewall"),                      "gufw",
-     "cs-firewall",        "admin",          _("firewall, block, filter, programs")],
-    [_("Firewall"),                      "firewall-config",
-     "cs-firewall",        "admin",          _("firewall, block, filter, programs")],
-    [_("Languages"),                     "mintlocale",
-     "cs-language",        "prefs",          _("language, install, foreign")],
-    [_("Input Method"),                  "mintlocale-im",                       "cs-input-method",
-     "prefs",          _("language, install, foreign, input, method, chinese, korean, japanese, typing")],
-    [_("Login Window"),                  "pkexec lightdm-settings",             "cs-login",
-     "admin",          _("login, lightdm, mdm, gdm, manager, user, password, startup, switch")],
-    [_("Login Window"),                  "lightdm-gtk-greeter-settings-pkexec", "cs-login",
-     "admin",          _("login, lightdm, manager, settings, editor")],
-    [_("Driver Manager"),                "pkexec driver-manager",               "cs-drivers",
-     "admin",          _("video, driver, wifi, card, hardware, proprietary, nvidia, radeon, nouveau, fglrx")],
-    [_("Nvidia Settings"),               "nvidia-settings",                     "cs-drivers",
-     "admin",          _("video, driver, proprietary, nvidia, settings")],
-    [_("Software Sources"),              "pkexec mintsources",                  "cs-sources",
-     "admin",          _("ppa, repository, package, source, download")],
-    [_("Package Management"),            "dnfdragora",                          "cs-sources",
-     "admin",          _("update, install, repository, package, source, download")],
-    [_("Package Management"),            "yumex-dnf",                           "cs-sources",
-     "admin",          _("update, install, repository, package, source, download")],
-    [_("Users and Groups"),              "cinnamon-settings-users",             "cs-user-accounts",
-     "admin",          _("user, users, account, accounts, group, groups, password")],
-    [_("Bluetooth"),                     "blueberry",
-     "cs-bluetooth",       "hardware",       _("bluetooth, dongle, transfer, mobile")],
-    [_("Manage Services and Units"),     "systemd-manager-pkexec",
-     "cs-sources",         "admin",          _("systemd, units, services, systemctl, init")]
+    [
+        _("Printers"),
+        "system-config-printer",
+        "cs-printer",
+        "hardware",
+        _("printers, laser, inkjet"),
+    ],
+    [
+        _("Firewall"),
+        "gufw",
+        "cs-firewall",
+        "admin",
+        _("firewall, block, filter, programs"),
+    ],
+    [
+        _("Firewall"),
+        "firewall-config",
+        "cs-firewall",
+        "admin",
+        _("firewall, block, filter, programs"),
+    ],
+    [
+        _("Languages"),
+        "mintlocale",
+        "cs-language",
+        "prefs",
+        _("language, install, foreign"),
+    ],
+    [
+        _("Input Method"),
+        "mintlocale-im",
+        "cs-input-method",
+        "prefs",
+        _(
+            "language, install, foreign, input, method, chinese, korean, japanese, typing"
+        ),
+    ],
+    [
+        _("Login Window"),
+        "pkexec lightdm-settings",
+        "cs-login",
+        "admin",
+        _("login, lightdm, mdm, gdm, manager, user, password, startup, switch"),
+    ],
+    [
+        _("Login Window"),
+        "lightdm-gtk-greeter-settings-pkexec",
+        "cs-login",
+        "admin",
+        _("login, lightdm, manager, settings, editor"),
+    ],
+    [
+        _("Driver Manager"),
+        "pkexec driver-manager",
+        "cs-drivers",
+        "admin",
+        _(
+            "video, driver, wifi, card, hardware, proprietary, nvidia, radeon, nouveau, fglrx"
+        ),
+    ],
+    [
+        _("Nvidia Settings"),
+        "nvidia-settings",
+        "cs-drivers",
+        "admin",
+        _("video, driver, proprietary, nvidia, settings"),
+    ],
+    [
+        _("Software Sources"),
+        "pkexec mintsources",
+        "cs-sources",
+        "admin",
+        _("ppa, repository, package, source, download"),
+    ],
+    [
+        _("Package Management"),
+        "dnfdragora",
+        "cs-sources",
+        "admin",
+        _("update, install, repository, package, source, download"),
+    ],
+    [
+        _("Package Management"),
+        "yumex-dnf",
+        "cs-sources",
+        "admin",
+        _("update, install, repository, package, source, download"),
+    ],
+    [
+        _("Users and Groups"),
+        "cinnamon-settings-users",
+        "cs-user-accounts",
+        "admin",
+        _("user, users, account, accounts, group, groups, password"),
+    ],
+    [
+        _("Bluetooth"),
+        "blueberry",
+        "cs-bluetooth",
+        "hardware",
+        _("bluetooth, dongle, transfer, mobile"),
+    ],
+    [
+        _("Manage Services and Units"),
+        "systemd-manager-pkexec",
+        "cs-sources",
+        "admin",
+        _("systemd, units, services, systemctl, init"),
+    ],
 ]
 
 TABS = {
     # KEY (cs_KEY.py) : {"tab_name": tab_number, ... }
     "universal-access": {"visual": 0, "keyboard": 1, "typing": 2, "mouse": 3},
-    "applets":          {"installed": 0, "more": 1, "download": 1},
-    "backgrounds":      {"images": 0, "settings": 1},
-    "default":          {"preferred": 0, "removable": 1},
-    "desklets":         {"installed": 0, "more": 1, "download": 1, "general": 2},
-    "effects":          {"effects": 0, "customize": 1},
-    "extensions":       {"installed": 0, "more": 1, "download": 1},
-    "keyboard":         {"typing": 0, "shortcuts": 1, "layouts": 2},
-    "mouse":            {"mouse": 0, "touchpad": 1},
-    "power":            {"power": 0, "batteries": 1, "brightness": 2},
-    "screensaver":      {"settings": 0, "customize": 1},
-    "sound":            {"output": 0, "input": 1, "sounds": 2, "applications": 3, "settings": 4},
-    "themes":           {"themes": 0, "download": 1, "options": 2},
-    "windows":          {"titlebar": 0, "behavior": 1, "alttab": 2},
-    "workspaces":       {"osd": 0, "settings": 1}
+    "applets": {"installed": 0, "more": 1, "download": 1},
+    "backgrounds": {"images": 0, "settings": 1},
+    "default": {"preferred": 0, "removable": 1},
+    "desklets": {"installed": 0, "more": 1, "download": 1, "general": 2},
+    "effects": {"effects": 0, "customize": 1},
+    "extensions": {"installed": 0, "more": 1, "download": 1},
+    "keyboard": {"typing": 0, "shortcuts": 1, "layouts": 2},
+    "mouse": {"mouse": 0, "touchpad": 1},
+    "power": {"power": 0, "batteries": 1, "brightness": 2},
+    "screensaver": {"settings": 0, "customize": 1},
+    "sound": {"output": 0, "input": 1, "sounds": 2, "applications": 3, "settings": 4},
+    "themes": {"themes": 0, "download": 1, "options": 2},
+    "windows": {"titlebar": 0, "behavior": 1, "alttab": 2},
+    "workspaces": {"osd": 0, "settings": 1},
 }
 
 ARG_REWRITE = {
-    'accessibility':    'universal-access',
-    'screen':           'display',
-    'screens':          'display',
-    'bluetooth':        'blueberry',
-    'hotcorners':       'hotcorner',
-    'accounts':         'online-accounts',
-    'colors':           'color',
-    'me':               'user',
-    'lightdm-settings': 'pkexec lightdm-settings',
-    'login-screen':     'pkexec lightdm-settings',
-    'window':           'windows',
-    'background':       'backgrounds',
-    'driver-manager':   'pkexec driver-manager',
-    'drivers':          'pkexec driver-manager',
-    'printers':         'system-config-printer',
-    'printer':          'system-config-printer',
-    'infos':            'info',
-    'locale':           'mintlocale',
-    'language':         'mintlocale',
-    'input-method':     'mintlocale-im',
-    'nvidia':           'nvidia-settings',
-    'firewall':         'gufw',
-    'networks':         'network',
-    'sources':          'pkexec mintsources',
-    'mintsources':      'pkexec mintsources',
-    'panels':           'panel',
-    'tablet':           'wacom',
-    'users':            'cinnamon-settings-users'
+    "accessibility": "universal-access",
+    "screen": "display",
+    "screens": "display",
+    "bluetooth": "blueberry",
+    "hotcorners": "hotcorner",
+    "accounts": "online-accounts",
+    "colors": "color",
+    "me": "user",
+    "lightdm-settings": "pkexec lightdm-settings",
+    "login-screen": "pkexec lightdm-settings",
+    "window": "windows",
+    "background": "backgrounds",
+    "driver-manager": "pkexec driver-manager",
+    "drivers": "pkexec driver-manager",
+    "printers": "system-config-printer",
+    "printer": "system-config-printer",
+    "infos": "info",
+    "locale": "mintlocale",
+    "language": "mintlocale",
+    "input-method": "mintlocale-im",
+    "nvidia": "nvidia-settings",
+    "firewall": "gufw",
+    "networks": "network",
+    "sources": "pkexec mintsources",
+    "mintsources": "pkexec mintsources",
+    "panels": "panel",
+    "tablet": "wacom",
+    "users": "cinnamon-settings-users",
 }
 
 
@@ -176,13 +287,14 @@ def print_timing(func):
         t1 = time.time()
         res = func(*arg)
         t2 = time.time()
-        print('%s took %0.3f ms' % (func.func_name, (t2-t1)*1000.0))
+        print("%s took %0.3f ms" % (func.func_name, (t2 - t1) * 1000.0))
         return res
+
     return wrapper
 
 
 def touch(fname, times=None):
-    with file(fname, 'a'):
+    with file(fname, "a"):
         os.utime(fname, times)
 
 
@@ -193,8 +305,9 @@ class MainWindow:
         selected_items = side_view.get_selected_items()
         if len(selected_items) > 0:
             self.deselect(cat)
-            filtered_path = side_view.get_model(
-            ).convert_path_to_child_path(selected_items[0])
+            filtered_path = side_view.get_model().convert_path_to_child_path(
+                selected_items[0]
+            )
             if filtered_path is not None:
                 self.go_to_sidepage(cat, filtered_path, user_action=True)
 
@@ -213,7 +326,7 @@ class MainWindow:
                 self.window.set_icon_name(sidePage.icon)
             sidePage.build()
             if sidePage.stack:
-                #current_page = sidePage.stack.get_visible_child_name()
+                # current_page = sidePage.stack.get_visible_child_name()
                 sidePage.stack.get_visible_child_name()
                 self.stack_switcher.set_stack(sidePage.stack)
                 l = sidePage.stack.get_children()
@@ -221,9 +334,11 @@ class MainWindow:
                     if self.tab in range(len(l)):
                         sidePage.stack.set_visible_child(l[self.tab])
                         visible_child = sidePage.stack.get_visible_child()
-                        if self.tab == 1 \
-                                and hasattr(visible_child, 'sort_combo') \
-                                and self.sort in range(4):
+                        if (
+                            self.tab == 1
+                            and hasattr(visible_child, "sort_combo")
+                            and self.sort in range(4)
+                        ):
                             visible_child.sort_combo.set_active(self.sort)
                             visible_child.sort_changed()
                     else:
@@ -234,9 +349,11 @@ class MainWindow:
                         self.stack_switcher.set_opacity(0)
                     if hasattr(sidePage, "connect_proxy"):
                         sidePage.connect_proxy(
-                            "hide_stack", self._on_sidepage_hide_stack)
+                            "hide_stack", self._on_sidepage_hide_stack
+                        )
                         sidePage.connect_proxy(
-                            "show_stack", self._on_sidepage_show_stack)
+                            "show_stack", self._on_sidepage_show_stack
+                        )
                 else:
                     self.stack_switcher.set_opacity(0)
             else:
@@ -247,9 +364,11 @@ class MainWindow:
 
             else:
                 self.main_stack.set_visible_child_full(
-                    "content_box_page", Gtk.StackTransitionType.NONE)
+                    "content_box_page", Gtk.StackTransitionType.NONE
+                )
                 self.header_stack.set_visible_child_full(
-                    "content_box", Gtk.StackTransitionType.NONE)
+                    "content_box", Gtk.StackTransitionType.NONE
+                )
 
             self.current_sidepage = sidePage
             width = 0
@@ -286,12 +405,14 @@ class MainWindow:
                 self.side_view[key].unselect_all()
 
     def __init__(self):
-        ''' Create the UI '''
+        """ Create the UI """
         self.builder = Gtk.Builder()
-        self.builder.add_from_file(
-            config.currentPath + "/cinnamon-settings.ui")
-        self.window = XApp.GtkWindow(window_position=Gtk.WindowPosition.CENTER,
-                                     default_width=800, default_height=600)
+        self.builder.add_from_file(config.currentPath + "/cinnamon-settings.ui")
+        self.window = XApp.GtkWindow(
+            window_position=Gtk.WindowPosition.CENTER,
+            default_width=800,
+            default_height=600,
+        )
 
         main_box = self.builder.get_object("main_box")
         self.window.add(main_box)
@@ -301,8 +422,7 @@ class MainWindow:
         self.main_stack.set_transition_type(Gtk.StackTransitionType.CROSSFADE)
         self.main_stack.set_transition_duration(150)
         self.header_stack = self.builder.get_object("header_stack")
-        self.header_stack.set_transition_type(
-            Gtk.StackTransitionType.CROSSFADE)
+        self.header_stack.set_transition_type(Gtk.StackTransitionType.CROSSFADE)
         self.header_stack.set_transition_duration(150)
         self.side_view_container = self.builder.get_object("category_box")
         self.side_view_sw = self.builder.get_object("side_view_sw")
@@ -343,29 +463,36 @@ class MainWindow:
                 mod = module.Module(self.content_box)
                 if self.loadCheck(mod) and self.setParentRefs(mod):
                     self.unsortedSidePages.append(
-                        (mod.sidePage, mod.name, mod.category))
+                        (mod.sidePage, mod.name, mod.category)
+                    )
             except Exception:
                 print("Failed to load module %s" % module)
                 traceback.print_exc()
 
         for item in CONTROL_CENTER_MODULES:
             ccmodule = SettingsWidgets.CCModule(
-                item[0], item[1], item[2], item[3], item[4], self.content_box)
+                item[0], item[1], item[2], item[3], item[4], self.content_box
+            )
             if ccmodule.process(self.c_manager):
                 self.unsortedSidePages.append(
-                    (ccmodule.sidePage, ccmodule.name, ccmodule.category))
+                    (ccmodule.sidePage, ccmodule.name, ccmodule.category)
+                )
 
         for item in STANDALONE_MODULES:
             samodule = SettingsWidgets.SAModule(
-                item[0], item[1], item[2], item[3], item[4], self.content_box)
+                item[0], item[1], item[2], item[3], item[4], self.content_box
+            )
             if samodule.process():
                 self.unsortedSidePages.append(
-                    (samodule.sidePage, samodule.name, samodule.category))
+                    (samodule.sidePage, samodule.name, samodule.category)
+                )
 
         # sort the modules alphabetically according to the current locale
         localeStrKey = cmp_to_key(locale.strcoll)
         # Apply locale key to the field name of each side page.
-        def sidePagesKey(m): return localeStrKey(m[0].name)
+        def sidePagesKey(m):
+            return localeStrKey(m[0].name)
+
         self.sidePages = sorted(self.unsortedSidePages, key=sidePagesKey)
 
         # create the backing stores for the side nav-view.
@@ -375,8 +502,7 @@ class MainWindow:
         for sidepage in self.sidePages:
             sp, sp_id, sp_cat = sidepage
             if sp_cat not in self.store:  # Label         Icon    sidePage    Category
-                self.store[sidepage[2]] = Gtk.ListStore(
-                    str,          str,    object,     str)
+                self.store[sidepage[2]] = Gtk.ListStore(str, str, object, str)
                 for category in CATEGORIES:
                     if category["id"] == sp_cat:
                         category["show"] = True
@@ -385,8 +511,10 @@ class MainWindow:
             name = sp.name
             if len(name) > 30:
                 name = "%s..." % name[:30]
-            sidePagesIters[sp_id] = (self.store[sp_cat].append(
-                [name, sp.icon, sp, sp_cat]), sp_cat)
+            sidePagesIters[sp_id] = (
+                self.store[sp_cat].append([name, sp.icon, sp, sp_cat]),
+                sp_cat,
+            )
 
         self.min_label_length = 0
         self.min_pix_length = 0
@@ -396,8 +524,7 @@ class MainWindow:
             self.min_label_length = max(char, self.min_label_length)
             self.min_pix_length = max(pix, self.min_pix_length)
             self.storeFilter[key] = self.store[key].filter_new()
-            self.storeFilter[key].set_visible_func(
-                self.filter_visible_function)
+            self.storeFilter[key].set_visible_func(self.filter_visible_function)
 
         self.min_label_length += 2
         self.min_pix_length += 4
@@ -412,7 +539,7 @@ class MainWindow:
 
         # set up larger components.
         self.window.set_title(_("System Settings"))
-        self.button_back.connect('clicked', self.back_to_icon_view)
+        self.button_back.connect("clicked", self.back_to_icon_view)
 
         self.calculate_bar_heights()
 
@@ -443,8 +570,7 @@ class MainWindow:
 
             try:
                 if len(sys.argv) > 2:
-                    opts = getopt.getopt(sys.argv[2:], "t:s:", [
-                                         "tab=", "sort="])[0]
+                    opts = getopt.getopt(sys.argv[2:], "t:s:", ["tab=", "sort="])[0]
             except getopt.GetoptError:
                 pass
 
@@ -471,8 +597,13 @@ class MainWindow:
             if path:
                 self.go_to_sidepage(cat, path, user_action=False)
                 self.window.show()
-                if arg1 in ("mintlocale", "blueberry", "system-config-printer",
-                            "mintlocale-im", "nvidia-settings"):
+                if arg1 in (
+                    "mintlocale",
+                    "blueberry",
+                    "system-config-printer",
+                    "mintlocale-im",
+                    "nvidia-settings",
+                ):
                     # These modules do not need to leave the System Settings window open,
                     # when selected by command line argument.
                     self.window.close()
@@ -493,11 +624,14 @@ class MainWindow:
             grab = Gdk.Display.get_default().device_is_grabbed(device)
         # if not grab and event.keyval == Gdk.KEY_BackSpace and (type(self.window.get_focus()) not in
         #
-        if not grab and event.keyval == Gdk.KEY_BackSpace \
-                and not isinstance(self.window.get_focus(), Gtk.TreeView) \
-                and not isinstance(self.window.get_focus(), Gtk.Entry) \
-                and not isinstance(self.window.get_focus(), Gtk.SpinButton) \
-                and not isinstance(self.window.get_focus(), Gtk.TextView):
+        if (
+            not grab
+            and event.keyval == Gdk.KEY_BackSpace
+            and not isinstance(self.window.get_focus(), Gtk.TreeView)
+            and not isinstance(self.window.get_focus(), Gtk.Entry)
+            and not isinstance(self.window.get_focus(), Gtk.SpinButton)
+            and not isinstance(self.window.get_focus(), Gtk.TextView)
+        ):
             self.back_to_icon_view(None)
             return True
         return False
@@ -524,14 +658,16 @@ class MainWindow:
     def strip_accents(self, text):
         if self is None:
             return
-        text = unicodedata.normalize('NFKD', text)
-        return ''.join([c for c in text if not unicodedata.combining(c)])
+        text = unicodedata.normalize("NFKD", text)
+        return "".join([c for c in text if not unicodedata.combining(c)])
 
     def filter_visible_function(self, model, _iter, user_data=None):
         sidePage = model.get_value(_iter, 2)
         text = self.strip_accents(self.search_entry.get_text().lower())
-        if self.strip_accents(sidePage.name.lower()).find(text) > -1 or \
-           self.strip_accents(sidePage.keywords.lower()).find(text) > -1:
+        if (
+            self.strip_accents(sidePage.name.lower()).find(text) > -1
+            or self.strip_accents(sidePage.keywords.lower()).find(text) > -1
+        ):
             return True
         else:
             return False
@@ -572,7 +708,7 @@ class MainWindow:
             return
         wrapper = model.get_value(_iter, 1)
         if wrapper:
-            cell.set_property('surface', wrapper.surface)
+            cell.set_property("surface", wrapper.surface)
 
     def prepCategory(self, category):
         self.storeFilter[category["id"]].refilter()
@@ -583,8 +719,7 @@ class MainWindow:
             self.side_view_container.pack_start(widget, False, False, 10)
 
         box = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 4)
-        img = Gtk.Image.new_from_icon_name(
-            category["icon"], Gtk.IconSize.BUTTON)
+        img = Gtk.Image.new_from_icon_name(category["icon"], Gtk.IconSize.BUTTON)
         box.pack_start(img, False, False, 4)
 
         widget = Gtk.Label(yalign=0.5)
@@ -603,8 +738,14 @@ class MainWindow:
         widget.set_margin(20)
 
         pixbuf_renderer = Gtk.CellRendererPixbuf()
-        text_renderer = Gtk.CellRendererText(ellipsize=Pango.EllipsizeMode.NONE, wrap_mode=Pango.WrapMode.WORD_CHAR,
-                                             wrap_width=0, width_chars=self.min_label_length, alignment=Pango.Alignment.CENTER, xalign=0.5)
+        text_renderer = Gtk.CellRendererText(
+            ellipsize=Pango.EllipsizeMode.NONE,
+            wrap_mode=Pango.WrapMode.WORD_CHAR,
+            wrap_width=0,
+            width_chars=self.min_label_length,
+            alignment=Pango.Alignment.CENTER,
+            xalign=0.5,
+        )
 
         area.pack_start(pixbuf_renderer, True, True, False)
         area.pack_start(text_renderer, True, True, False)
@@ -616,16 +757,21 @@ class MainWindow:
 
         self.side_view[category["id"]] = widget
         self.side_view_container.pack_start(
-            self.side_view[category["id"]], False, False, 0)
+            self.side_view[category["id"]], False, False, 0
+        )
         self.first_category_done = True
         self.side_view[category["id"]].connect(
-            "item-activated", self.side_view_nav, category["id"])
+            "item-activated", self.side_view_nav, category["id"]
+        )
         self.side_view[category["id"]].connect(
-            "button-release-event", self.button_press, category["id"])
+            "button-release-event", self.button_press, category["id"]
+        )
         self.side_view[category["id"]].connect(
-            "keynav-failed", self.on_keynav_failed, category["id"])
+            "keynav-failed", self.on_keynav_failed, category["id"]
+        )
         self.side_view[category["id"]].connect(
-            "selection-changed", self.on_selection_changed, category["id"])
+            "selection-changed", self.on_selection_changed, category["id"]
+        )
 
     def bring_selection_into_view(self, iconview):
         sel = iconview.get_selected_items()
@@ -649,7 +795,7 @@ class MainWindow:
             if (final_y > 0) and ((final_y + rect.height) < page):
                 return
 
-            if ((final_y + rect.height) > page):
+            if (final_y + rect.height) > page:
                 adj.set_value(current_pos + final_y + rect.height - page + 10)
             elif final_y < 0:
                 # We can just add a negative here (since final_y < 0), but it's less
