@@ -1,6 +1,9 @@
 #!/bin/bash
 
-SCRIPT_PATH="$( cd "$(dirname "$0")" ; pwd -P )"
+SCRIPT_PATH="$(
+  cd "$(dirname "$0")"
+  pwd -P
+)"
 SOURCE_URL=https://picsum.photos/2560/1440
 LOCAL_FILENAME=background
 
