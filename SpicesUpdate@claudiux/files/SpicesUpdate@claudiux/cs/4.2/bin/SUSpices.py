@@ -65,7 +65,8 @@ class SU_Spice_Harvester(Spice_Harvester):
         super(SU_Spice_Harvester, self).__init__(collection_type, window)
 
     def _download_cache(self, load_assets=True):
-        download_url = URL_MAP[self.collection_type] + "?" + str(uuidlib.uuid4())
+        download_url = URL_MAP[self.collection_type] + "?" + str(
+            uuidlib.uuid4())
 
         filename = os.path.join(self.cache_folder, "index.json")
         if self._download(filename, download_url, binary=False) is None:
@@ -94,9 +95,9 @@ class SU_Spice_Harvester(Spice_Harvester):
                 "Host": host,
                 "User-Agent": "Python/3",
             }
-            connection.request(
-                "GET", parsed_url.path + "?" + parsed_url.query, headers=headers
-            )
+            connection.request("GET",
+                               parsed_url.path + "?" + parsed_url.query,
+                               headers=headers)
             urlobj = connection.getresponse()
             if urlobj.getcode() != 200:
                 self.abort()
@@ -119,12 +120,8 @@ class SU_Spice_Harvester(Spice_Harvester):
     def _install(self, job):
         uuid = job["uuid"]
 
-        download_url = (
-            URL_SPICES_HOME
-            + self.index_cache[uuid]["file"]
-            + "?"
-            + str(uuidlib.uuid4())
-        )
+        download_url = (URL_SPICES_HOME + self.index_cache[uuid]["file"] +
+                        "?" + str(uuidlib.uuid4()))
         self.current_uuid = uuid
 
         ziptempfile = tempfile.mkstemp()[1]
@@ -144,10 +141,8 @@ class SU_Spice_Harvester(Spice_Harvester):
         except Exception as detail:
             if not self.abort_download:
                 self.errorMessage(
-                    _(
-                        "An error occurred during the installation of %s. Please report this incident to its developer."
-                    )
-                    % uuid,
+                    _("An error occurred during the installation of %s. Please report this incident to its developer."
+                      ) % uuid,
                     str(detail),
                 )
             return

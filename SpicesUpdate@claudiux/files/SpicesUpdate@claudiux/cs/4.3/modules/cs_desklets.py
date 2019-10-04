@@ -34,9 +34,11 @@ class DeskletsViewSidePage(SidePage):
         )
         keywords = _("desklet, desktop, slideshow")
 
-        super(DeskletsViewSidePage, self).__init__(
-            _("Desklets"), "cs-desklets", keywords, content_box, module=module
-        )
+        super(DeskletsViewSidePage, self).__init__(_("Desklets"),
+                                                   "cs-desklets",
+                                                   keywords,
+                                                   content_box,
+                                                   module=module)
 
     def load(self, window):
         self.window = window
@@ -47,12 +49,12 @@ class DeskletsViewSidePage(SidePage):
         self.add_widget(self.stack)
         self.stack.expand = True
 
-        manage_extensions_page = ManageDeskletsPage(self, self.spices, self.window)
+        manage_extensions_page = ManageDeskletsPage(self, self.spices,
+                                                    self.window)
         self.stack.add_titled(manage_extensions_page, "installed", _("Manage"))
 
-        download_desklets_page = DownloadSpicesPage(
-            self, self.collection_type, self.spices, self.window
-        )
+        download_desklets_page = DownloadSpicesPage(self, self.collection_type,
+                                                    self.spices, self.window)
         self.stack.add_titled(download_desklets_page, "more", _("Download"))
 
         page = SettingsPage()
@@ -75,24 +77,22 @@ class DeskletsViewSidePage(SidePage):
         )
         widget.pack_start(combo_box, False, False, 0)
         line1 = Gtk.Label()
-        line1.set_markup(
-            "<i><small>%s</small></i>"
-            % _("Note: Some desklets require the border/header to be always present")
-        )
+        line1.set_markup("<i><small>%s</small></i>" % _(
+            "Note: Some desklets require the border/header to be always present"
+        ))
         line1.get_style_context().add_class("dim-label")
         widget.pack_start(line1, True, True, 0)
         line2 = Gtk.Label()
         line2.set_markup(
-            "<i><small>%s</small></i>"
-            % _("Such requirements override the settings selected here")
-        )
+            "<i><small>%s</small></i>" %
+            _("Such requirements override the settings selected here"))
         line2.get_style_context().add_class("dim-label")
         widget.pack_start(line2, True, True, 0)
         settings.add_row(widget)
 
         settings.add_row(
-            GSettingsSwitch(_("Snap desklets to grid"), "org.cinnamon", "desklet-snap")
-        )
+            GSettingsSwitch(_("Snap desklets to grid"), "org.cinnamon",
+                            "desklet-snap"))
         settings.add_reveal_row(
             GSettingsSpinButton(
                 _("Width of desklet snap grid"),
@@ -122,6 +122,5 @@ class ManageDeskletsPage(ManageSpicesPage):
     restore_button_text = _("Remove all")
 
     def __init__(self, parent, spices, window):
-        super(ManageDeskletsPage, self).__init__(
-            parent, self.collection_type, spices, window
-        )
+        super(ManageDeskletsPage, self).__init__(parent, self.collection_type,
+                                                 spices, window)

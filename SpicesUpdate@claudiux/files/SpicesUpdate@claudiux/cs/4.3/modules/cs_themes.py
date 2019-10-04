@@ -22,12 +22,16 @@ ICON_SIZE = 48
 ICON_FOLDERS = [
     os.path.join(GLib.get_user_data_dir(), "icons"),
     os.path.join(GLib.get_home_dir(), ".icons"),
-] + [os.path.join(datadir, "icons") for datadir in GLib.get_system_data_dirs()]
+] + [
+    os.path.join(datadir, "icons") for datadir in GLib.get_system_data_dirs()
+]
 
 THEME_FOLDERS = [
     os.path.join(GLib.get_user_data_dir(), "themes"),
     os.path.join(GLib.get_home_dir(), ".themes"),
-] + [os.path.join(datadir, "themes") for datadir in GLib.get_system_data_dirs()]
+] + [
+    os.path.join(datadir, "themes") for datadir in GLib.get_system_data_dirs()
+]
 
 
 class Module:
@@ -39,9 +43,11 @@ class Module:
         self.keywords = _("themes, style")
         self.icon = "cs-themes"
         self.window = None
-        sidePage = SidePage(
-            _("Themes"), self.icon, self.keywords, content_box, module=self
-        )
+        sidePage = SidePage(_("Themes"),
+                            self.icon,
+                            self.keywords,
+                            content_box,
+                            module=self)
         self.sidePage = sidePage
 
     def on_module_selected(self):
@@ -54,7 +60,8 @@ class Module:
             self.sidePage.add_widget(self.sidePage.stack)
 
             self.settings = Gio.Settings.new("org.cinnamon.desktop.interface")
-            self.wm_settings = Gio.Settings.new("org.cinnamon.desktop.wm.preferences")
+            self.wm_settings = Gio.Settings.new(
+                "org.cinnamon.desktop.wm.preferences")
             self.cinnamon_settings = Gio.Settings.new("org.cinnamon.theme")
 
             self.icon_chooser = self.create_button_chooser(
@@ -108,7 +115,8 @@ class Module:
 
             settings = page.add_section(_("Themes"))
 
-            widget = self.make_group(_("Window borders"), self.metacity_chooser)
+            widget = self.make_group(_("Window borders"),
+                                     self.metacity_chooser)
             settings.add_row(widget)
 
             widget = self.make_group(_("Icons"), self.icon_chooser)
@@ -164,12 +172,10 @@ class Module:
             settings.add_row(widget)
 
             self.gtk2_scrollbar_editor = Gtk2ScrollbarSizeEditor(
-                widget.get_scale_factor()
-            )
+                widget.get_scale_factor())
 
             switch = CssOverrideSwitch(
-                _("Override the current theme's scrollbar width")
-            )
+                _("Override the current theme's scrollbar width"))
             settings.add_row(switch)
             self.scrollbar_switch = switch.content_widget
 
@@ -188,12 +194,10 @@ class Module:
             self.scrollbar_css_range = widget.content_widget
             self.scrollbar_css_range.get_adjustment().set_page_increment(2.0)
 
-            switch.content_widget.connect(
-                "notify::active", self.on_css_override_active_changed
-            )
-            widget.content_widget.connect(
-                "value-changed", self.on_range_slider_value_changed
-            )
+            switch.content_widget.connect("notify::active",
+                                          self.on_css_override_active_changed)
+            widget.content_widget.connect("value-changed",
+                                          self.on_range_slider_value_changed)
 
             self.on_css_override_active_changed(switch)
 
@@ -201,17 +205,15 @@ class Module:
             settings.add_row(widget)
 
             label_widget = LabelRow(
-                _(
-                    """Changes will take effect the next time you log in and may not affect all applications."""
-                )
-            )
+                _("""Changes will take effect the next time you log in and may not affect all applications."""
+                  ))
             settings.add_row(label_widget)
 
             self.builder = self.sidePage.builder
 
             for path in [
-                os.path.expanduser("~/.themes"),
-                os.path.expanduser("~/.icons"),
+                    os.path.expanduser("~/.themes"),
+                    os.path.expanduser("~/.icons"),
             ]:
                 try:
                     os.makedirs(path)
@@ -220,17 +222,16 @@ class Module:
 
             self.monitors = []
             for path in [
-                os.path.expanduser("~/.themes"),
-                "/usr/share/themes",
-                os.path.expanduser("~/.icons"),
-                "/usr/share/icons",
+                    os.path.expanduser("~/.themes"),
+                    "/usr/share/themes",
+                    os.path.expanduser("~/.icons"),
+                    "/usr/share/icons",
             ]:
                 if os.path.exists(path):
                     file_obj = Gio.File.new_for_path(path)
                     try:
                         file_monitor = file_obj.monitor_directory(
-                            Gio.FileMonitorFlags.SEND_MOVED, None
-                        )
+                            Gio.FileMonitorFlags.SEND_MOVED, None)
                         file_monitor.connect("changed", self.on_file_changed)
                         self.monitors.append(file_monitor)
                     except Exception as e:
@@ -241,7 +242,8 @@ class Module:
 
     def on_css_override_active_changed(self, switch, pspec=None, data=None):
         if self.scrollbar_switch.get_active():
-            self.gtk2_scrollbar_editor.set_size(self.scrollbar_css_range.get_value())
+            self.gtk2_scrollbar_editor.set_size(
+                self.scrollbar_css_range.get_value())
         else:
             self.gtk2_scrollbar_editor.set_size(0)
 
@@ -254,46 +256,36 @@ class Module:
 
     def refresh(self):
         choosers = []
-        choosers.append(
-            (
-                self.cursor_chooser,
-                "cursors",
-                self._load_cursor_themes(),
-                self._on_cursor_theme_selected,
-            )
-        )
-        choosers.append(
-            (
-                self.theme_chooser,
-                "gtk-3.0",
-                self._load_gtk_themes(),
-                self._on_gtk_theme_selected,
-            )
-        )
-        choosers.append(
-            (
-                self.metacity_chooser,
-                "metacity-1",
-                self._load_metacity_themes(),
-                self._on_metacity_theme_selected,
-            )
-        )
-        choosers.append(
-            (
-                self.cinnamon_chooser,
-                "cinnamon",
-                self._load_cinnamon_themes(),
-                self._on_cinnamon_theme_selected,
-            )
-        )
-        choosers.append(
-            (
-                self.icon_chooser,
-                "icons",
-                self._load_icon_themes(),
-                self._on_icon_theme_selected,
-            )
-        )
+        choosers.append((
+            self.cursor_chooser,
+            "cursors",
+            self._load_cursor_themes(),
+            self._on_cursor_theme_selected,
+        ))
+        choosers.append((
+            self.theme_chooser,
+            "gtk-3.0",
+            self._load_gtk_themes(),
+            self._on_gtk_theme_selected,
+        ))
+        choosers.append((
+            self.metacity_chooser,
+            "metacity-1",
+            self._load_metacity_themes(),
+            self._on_metacity_theme_selected,
+        ))
+        choosers.append((
+            self.cinnamon_chooser,
+            "cinnamon",
+            self._load_cinnamon_themes(),
+            self._on_cinnamon_theme_selected,
+        ))
+        choosers.append((
+            self.icon_chooser,
+            "icons",
+            self._load_icon_themes(),
+            self._on_icon_theme_selected,
+        ))
         for chooser in choosers:
             chooser[0].clear_menu()
             chooser[0].set_sensitive(False)
@@ -317,9 +309,8 @@ class Module:
             for theme in themes:
                 icon_theme = Gtk.IconTheme()
                 icon_theme.set_custom_theme(theme)
-                folder = icon_theme.lookup_icon(
-                    "folder", ICON_SIZE, Gtk.IconLookupFlags.FORCE_SVG
-                )
+                folder = icon_theme.lookup_icon("folder", ICON_SIZE,
+                                                Gtk.IconLookupFlags.FORCE_SVG)
                 if folder:
                     path = folder.get_filename()
                     chooser.add_picture(path, callback, title=theme, id=theme)
@@ -337,20 +328,23 @@ class Module:
                 theme_path = theme[1]
                 try:
                     for path in [
-                        "%s/%s/%s/thumbnail.png"
-                        % (theme_path, theme_name, path_suffix),
-                        "/usr/share/cinnamon/thumbnails/%s/%s.png"
-                        % (path_suffix, theme_name),
-                        "/usr/share/cinnamon/thumbnails/%s/unknown.png" % path_suffix,
+                            "%s/%s/%s/thumbnail.png" %
+                        (theme_path, theme_name, path_suffix),
+                            "/usr/share/cinnamon/thumbnails/%s/%s.png" %
+                        (path_suffix, theme_name),
+                            "/usr/share/cinnamon/thumbnails/%s/unknown.png" %
+                            path_suffix,
                     ]:
                         if os.path.exists(path):
-                            chooser.add_picture(
-                                path, callback, title=theme_name, id=theme_name
-                            )
+                            chooser.add_picture(path,
+                                                callback,
+                                                title=theme_name,
+                                                id=theme_name)
                             break
                 except Exception:
                     chooser.add_picture(
-                        "/usr/share/cinnamon/thumbnails/%s/unknown.png" % path_suffix,
+                        "/usr/share/cinnamon/thumbnails/%s/unknown.png" %
+                        path_suffix,
                         callback,
                         title=theme_name,
                         id=theme_name,
@@ -392,14 +386,14 @@ class Module:
         return box
 
     def create_button_chooser(
-        self,
-        settings,
-        key,
-        path_prefix,
-        path_suffix,
-        button_picture_size,
-        menu_pictures_size,
-        num_cols,
+            self,
+            settings,
+            key,
+            path_prefix,
+            path_suffix,
+            button_picture_size,
+            menu_pictures_size,
+            num_cols,
     ):
         if self is None:
             return
@@ -413,31 +407,34 @@ class Module:
         chooser.set_button_label(theme)
         chooser.set_tooltip_text(theme)
         if path_suffix == "cinnamon" and theme == "cinnamon":
-            chooser.set_picture_from_file("/usr/share/cinnamon/theme/thumbnail.png")
+            chooser.set_picture_from_file(
+                "/usr/share/cinnamon/theme/thumbnail.png")
         elif path_suffix == "icons":
             current_theme = Gtk.IconTheme.get_default()
-            folder = current_theme.lookup_icon("folder", button_picture_size, 0)
+            folder = current_theme.lookup_icon("folder", button_picture_size,
+                                               0)
             if folder is not None:
                 path = folder.get_filename()
                 chooser.set_picture_from_file(path)
         else:
             try:
                 for path in [
-                    "/usr/share/%s/%s/%s/thumbnail.png"
-                    % (path_prefix, theme, path_suffix),
-                    os.path.expanduser(
-                        "~/.%s/%s/%s/thumbnail.png" % (path_prefix, theme, path_suffix)
-                    ),
-                    "/usr/share/cinnamon/thumbnails/%s/%s.png" % (path_suffix, theme),
-                    "/usr/share/cinnamon/thumbnails/%s/unknown.png" % path_suffix,
+                        "/usr/share/%s/%s/%s/thumbnail.png" %
+                    (path_prefix, theme, path_suffix),
+                        os.path.expanduser("~/.%s/%s/%s/thumbnail.png" %
+                                           (path_prefix, theme, path_suffix)),
+                        "/usr/share/cinnamon/thumbnails/%s/%s.png" %
+                    (path_suffix, theme),
+                        "/usr/share/cinnamon/thumbnails/%s/unknown.png" %
+                        path_suffix,
                 ]:
                     if os.path.exists(path):
                         chooser.set_picture_from_file(path)
                         break
             except Exception:
                 chooser.set_picture_from_file(
-                    "/usr/share/cinnamon/thumbnails/%s/unknown.png" % path_suffix
-                )
+                    "/usr/share/cinnamon/thumbnails/%s/unknown.png" %
+                    path_suffix)
         return chooser
 
     def _on_icon_theme_selected(self, path, theme):
@@ -490,9 +487,9 @@ class Module:
     def _load_gtk_themes(self):
         """ Only shows themes that have variations for gtk+-3 and gtk+-2 """
         dirs = THEME_FOLDERS
-        valid = walk_directories(
-            dirs, self.filter_func_gtk_dir, return_directories=True
-        )
+        valid = walk_directories(dirs,
+                                 self.filter_func_gtk_dir,
+                                 return_directories=True)
         valid.sort(key=lambda a: a[0].lower())
         res = []
         for i in valid:
@@ -553,7 +550,8 @@ class Module:
         dirs = ICON_FOLDERS
         valid = walk_directories(
             dirs,
-            lambda d: os.path.isdir(d) and os.path.exists(os.path.join(d, "cursors")),
+            lambda d: os.path.isdir(d) and os.path.exists(
+                os.path.join(d, "cursors")),
             return_directories=True,
         )
         valid.sort(key=lambda a: a[0].lower())
@@ -575,8 +573,7 @@ class Module:
         valid = walk_directories(
             dirs,
             lambda d: os.path.exists(
-                os.path.join(d, "metacity-1/metacity-theme-3.xml")
-            ),
+                os.path.join(d, "metacity-1/metacity-theme-3.xml")),
             return_directories=True,
         )
         valid.sort(key=lambda a: a[0].lower())
@@ -615,7 +612,8 @@ class Module:
     def update_cursor_theme_link(self, path, name):
         if self is None:
             return
-        default_dir = os.path.join(os.path.expanduser("~"), ".icons", "default")
+        default_dir = os.path.join(os.path.expanduser("~"), ".icons",
+                                   "default")
         index_path = os.path.join(default_dir, "index.theme")
 
         try:
