@@ -62,7 +62,7 @@ var GetDayName = function(date: Date, locale:string, tz?: string): string {
 
     switch(support) {
         case "full":
-            return date.toLocaleString(locale, {timeZone: tz, weekday: "long"}); 
+            return date.toLocaleString(locale, {timeZone: tz, weekday: "long"});
         case "notz":
             return date.toLocaleString(locale, {timeZone: "UTC", weekday: "long"});
         case "none":

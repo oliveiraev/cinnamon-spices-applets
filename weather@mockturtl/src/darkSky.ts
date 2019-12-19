@@ -42,7 +42,7 @@ class DarkSky implements WeatherProvider {
 
       // DarkSky Filter words for short conditions, won't work on every language
     private DarkSkyFilterWords = [_("and"), _("until"), _("in")];
-    
+
     private unit: queryUnits = null;
 
     private app: WeatherApplet
@@ -65,13 +65,13 @@ class DarkSky implements WeatherProvider {
             catch(e) {
                 this.app.HandleHTTPError("darksky", e, this.app, this.HandleHTTPError);
                 return null;
-            }        
-            
+            }
+
             if (!json) {
                 this.app.HandleError({type: "soft", detail: "no api response", service: "darksky"});
                 return null;
             }
-         
+
             if (!json.code) {                   // No code, Request Success
                 return this.ParseWeather(json);
             }
@@ -120,14 +120,14 @@ class DarkSky implements WeatherProvider {
             // Forecast
             for (let i = 0; i < this.app._forecastDays; i++) {
                 let day = json.daily.data[i];
-                let forecast: ForecastData = {          
-                    date: new Date(day.time * 1000),         
-                      temp_min: this.ToKelvin(day.temperatureLow),           
-                      temp_max: this.ToKelvin(day.temperatureHigh),           
+                let forecast: ForecastData = {
+                    date: new Date(day.time * 1000),
+                      temp_min: this.ToKelvin(day.temperatureLow),
+                      temp_max: this.ToKelvin(day.temperatureHigh),
                     condition: {
-                      main: this.GetShortSummary(day.summary),               
-                      description: this.ProcessSummary(day.summary),        
-                      icon: weatherIconSafely(this.ResolveIcon(day.icon), this.app._icon_type),               
+                      main: this.GetShortSummary(day.summary),
+                      description: this.ProcessSummary(day.summary),
+                      icon: weatherIconSafely(this.ResolveIcon(day.icon), this.app._icon_type),
                     },
                   };
 
@@ -163,7 +163,7 @@ class DarkSky implements WeatherProvider {
             return "";
         }
         if (isCoordinate(location)) {
-            query = this.query + key + "/" + location + 
+            query = this.query + key + "/" + location +
             "?exclude=minutely,hourly,flags" + "&units=" + this.unit;
             this.app.log.Debug(this.app.systemLanguage);
             if (isLangSupported(this.app.systemLanguage, this.supportedLanguages) && this.app._translateCondition) {
@@ -325,4 +325,3 @@ class DarkSky implements WeatherProvider {
  * - 'uk2' return miles/hour and Celsius
  */
 type queryUnits = 'si' | 'us' | 'uk2';
-
