@@ -1,9 +1,9 @@
 function importModule(path) {
-  if (typeof require !== 'undefined') {
-    return require('./' + path);
+  if (typeof require !== "undefined") {
+    return require("./" + path);
   } else {
     if (!AppletDir)
-      var AppletDir = imports.ui.appletManager.applets['weather@mockturtl'];
+      var AppletDir = imports.ui.appletManager.applets["weather@mockturtl"];
     return AppletDir[path];
   }
 }
@@ -19,14 +19,52 @@ class DarkSky {
   constructor(_app) {
     this.descriptionLinelength = 25;
     this.supportedLanguages = [
-      'ar', 'az',  'be', 'bg', 'bs',          'ca', 'cs',   'da', 'de',
-      'el', 'en',  'es', 'et', 'fi',          'fr', 'he',   'hr', 'hu',
-      'id', 'is',  'it', 'ja', 'ka',          'ko', 'kw',   'lv', 'nb',
-      'nl', 'no',  'pl', 'pt', 'ro',          'ru', 'sk',   'sl', 'sr',
-      'sv', 'tet', 'tr', 'uk', 'x-pig-latin', 'zh', 'zh-tw'
+      "ar",
+      "az",
+      "be",
+      "bg",
+      "bs",
+      "ca",
+      "cs",
+      "da",
+      "de",
+      "el",
+      "en",
+      "es",
+      "et",
+      "fi",
+      "fr",
+      "he",
+      "hr",
+      "hu",
+      "id",
+      "is",
+      "it",
+      "ja",
+      "ka",
+      "ko",
+      "kw",
+      "lv",
+      "nb",
+      "nl",
+      "no",
+      "pl",
+      "pt",
+      "ro",
+      "ru",
+      "sk",
+      "sl",
+      "sr",
+      "sv",
+      "tet",
+      "tr",
+      "uk",
+      "x-pig-latin",
+      "zh",
+      "zh-tw"
     ];
     this.query = "https://api.darksky.net/forecast/";
-    this.DarkSkyFilterWords = [ _("and"), _("until"), _("in") ];
+    this.DarkSkyFilterWords = [_("and"), _("until"), _("in")];
     this.unit = null;
     this.app = _app;
   }
@@ -42,8 +80,11 @@ class DarkSky {
         return null;
       }
       if (!json) {
-        this.app.HandleError(
-            {type : "soft", detail : "no api response", service : "darksky"});
+        this.app.HandleError({
+          type: "soft",
+          detail: "no api response",
+          service: "darksky"
+        });
         return null;
       }
       if (!json.code) {
@@ -54,51 +95,58 @@ class DarkSky {
       }
     }
     return null;
-  };
+  }
   ParseWeather(json) {
     try {
       let result = {
-        date : new Date(json.currently.time * 1000),
-        coord : {lat : json.latitude, lon : json.longitude},
-        location : {
-          url : "https://darksky.net/forecast/" + json.latitude + "," +
-                    json.longitude,
-          timeZone : json.timezone,
+        date: new Date(json.currently.time * 1000),
+        coord: { lat: json.latitude, lon: json.longitude },
+        location: {
+          url:
+            "https://darksky.net/forecast/" +
+            json.latitude +
+            "," +
+            json.longitude,
+          timeZone: json.timezone
         },
-        sunrise : new Date(json.daily.data[0].sunriseTime * 1000),
-        sunset : new Date(json.daily.data[0].sunsetTime * 1000),
-        wind : {
-          speed : this.ToMPS(json.currently.windSpeed),
-          degree : json.currently.windBearing
+        sunrise: new Date(json.daily.data[0].sunriseTime * 1000),
+        sunset: new Date(json.daily.data[0].sunsetTime * 1000),
+        wind: {
+          speed: this.ToMPS(json.currently.windSpeed),
+          degree: json.currently.windBearing
         },
-        temperature : this.ToKelvin(json.currently.temperature),
-        pressure : json.currently.pressure,
-        humidity : json.currently.humidity * 100,
-        condition : {
-          main : this.GetShortCurrentSummary(json.currently.summary),
-          description : json.currently.summary,
-          icon : weatherIconSafely(this.ResolveIcon(json.currently.icon),
-                                   this.app._icon_type)
+        temperature: this.ToKelvin(json.currently.temperature),
+        pressure: json.currently.pressure,
+        humidity: json.currently.humidity * 100,
+        condition: {
+          main: this.GetShortCurrentSummary(json.currently.summary),
+          description: json.currently.summary,
+          icon: weatherIconSafely(
+            this.ResolveIcon(json.currently.icon),
+            this.app._icon_type
+          )
         },
-        extra_field : {
-          name : _("Feels Like"),
-          value : this.ToKelvin(json.currently.apparentTemperature),
-          type : "temperature"
+        extra_field: {
+          name: _("Feels Like"),
+          value: this.ToKelvin(json.currently.apparentTemperature),
+          type: "temperature"
         },
-        forecasts : []
+        forecasts: []
       };
       for (let i = 0; i < this.app._forecastDays; i++) {
         let day = json.daily.data[i];
         let forecast = {
-          date : new Date(day.time * 1000),
-          temp_min : this.ToKelvin(day.temperatureLow),
-          temp_max : this.ToKelvin(day.temperatureHigh),
-          condition : {
-            main : this.GetShortSummary(day.summary),
-            description : this.ProcessSummary(day.summary),
-            icon : weatherIconSafely(this.ResolveIcon(day.icon),
-                                     this.app._icon_type),
-          },
+          date: new Date(day.time * 1000),
+          temp_min: this.ToKelvin(day.temperatureLow),
+          temp_max: this.ToKelvin(day.temperatureHigh),
+          condition: {
+            main: this.GetShortSummary(day.summary),
+            description: this.ProcessSummary(day.summary),
+            icon: weatherIconSafely(
+              this.ResolveIcon(day.icon),
+              this.app._icon_type
+            )
+          }
         };
         forecast.date.setHours(forecast.date.getHours() + 12);
         result.forecasts.push(forecast);
@@ -107,14 +155,14 @@ class DarkSky {
     } catch (e) {
       this.app.log.Error("DarkSky payload parsing error: " + e);
       this.app.HandleError({
-        type : "soft",
-        detail : "unusal payload",
-        service : "darksky",
-        message : _("Failed to Process Weather Info")
+        type: "soft",
+        detail: "unusal payload",
+        service: "darksky",
+        message: _("Failed to Process Weather Info")
       });
       return null;
     }
-  };
+  }
   ConstructQuery() {
     this.SetQueryUnit();
     let query;
@@ -123,55 +171,64 @@ class DarkSky {
     if (this.app.noApiKey()) {
       this.app.log.Error("DarkSky: No API Key given");
       this.app.HandleError({
-        type : "hard",
-        userError : true,
-        "detail" : "no key",
-        message : _(
-            "Please enter API key in settings,\nor get one first on https://darksky.net/dev/register")
+        type: "hard",
+        userError: true,
+        detail: "no key",
+        message: _(
+          "Please enter API key in settings,\nor get one first on https://darksky.net/dev/register"
+        )
       });
       return "";
     }
     if (isCoordinate(location)) {
-      query = this.query + key + "/" + location +
-              "?exclude=minutely,hourly,flags" +
-              "&units=" + this.unit;
+      query =
+        this.query +
+        key +
+        "/" +
+        location +
+        "?exclude=minutely,hourly,flags" +
+        "&units=" +
+        this.unit;
       this.app.log.Debug(this.app.systemLanguage);
-      if (isLangSupported(this.app.systemLanguage, this.supportedLanguages) &&
-          this.app._translateCondition) {
+      if (
+        isLangSupported(this.app.systemLanguage, this.supportedLanguages) &&
+        this.app._translateCondition
+      ) {
         query = query + "&lang=" + this.app.systemLanguage;
       }
       return query;
     } else {
       this.app.log.Error("DarkSky: Location is not a coordinate");
       this.app.HandleError({
-        type : "hard",
-        detail : "bad location format",
-        service : "darksky",
-        userError : true,
-        message : ("Please Check the location,\nmake sure it is a coordinate")
+        type: "hard",
+        detail: "bad location format",
+        service: "darksky",
+        userError: true,
+        message: "Please Check the location,\nmake sure it is a coordinate"
       });
       return "";
     }
-  };
+  }
   HandleResponseErrors(json) {
     let code = json.code;
     let error = json.error;
     let errorMsg = "DarkSky API: ";
     this.app.log.Debug("DarksSky API error payload: " + json);
     switch (code) {
-    case "400":
-      this.app.log.Error(errorMsg + error);
-      break;
-    default:
-      this.app.log.Error(errorMsg + error);
-      break;
+      case "400":
+        this.app.log.Error(errorMsg + error);
+        break;
+      default:
+        this.app.log.Error(errorMsg + error);
+        break;
     }
-  };
+  }
   HandleHTTPError(error, uiError) {
     if (error.code == 403) {
       uiError.detail = "bad key";
       uiError.message = _(
-          "Please Make sure you\nentered the API key correctly and your account is not locked");
+        "Please Make sure you\nentered the API key correctly and your account is not locked"
+      );
       uiError.type = "hard";
       uiError.userError = true;
     }
@@ -190,7 +247,7 @@ class DarkSky {
       linelength = linelength + processed[i].length + 1;
     }
     return result;
-  };
+  }
   GetShortSummary(summary) {
     let processed = summary.split(" ");
     let result = "";
@@ -200,12 +257,12 @@ class DarkSky {
       }
     }
     return result;
-  };
+  }
   GetShortCurrentSummary(summary) {
     let processed = summary.split(" ");
     let result = "";
     let maxLoop;
-    (processed.length < 2) ? maxLoop = processed.length : maxLoop = 2;
+    processed.length < 2 ? (maxLoop = processed.length) : (maxLoop = 2);
     for (let i = 0; i < maxLoop; i++) {
       if (processed[i] != "and") {
         result = result + processed[i] + " ";
@@ -213,62 +270,69 @@ class DarkSky {
     }
     return result;
   }
-  WordBanned(word) { return this.DarkSkyFilterWords.indexOf(word) != -1; }
+  WordBanned(word) {
+    return this.DarkSkyFilterWords.indexOf(word) != -1;
+  }
   ResolveIcon(icon) {
     switch (icon) {
-    case "rain":
-      return [ icons.rain, icons.showers_scattered, icons.rain_freezing ];
-    case "snow":
-      return [ icons.snow ];
-    case "fog":
-      return [ icons.fog ];
-    case "cloudy":
-      return [ icons.overcast, icons.clouds, icons.few_clouds_day ];
-    case "partly-cloudy-night":
-      return [ icons.few_clouds_night, icons.few_clouds_day ];
-    case "partly-cloudy-day":
-      return [ icons.few_clouds_day ];
-    case "clear-night":
-      return [ icons.clear_night ];
-    case "clear-day":
-      return [ icons.clear_day ];
-    case "storm":
-      return [ icons.storm ];
-    case "showers":
-      return [ icons.showers ];
-    case "wind":
-      return [
-        "weather-wind", "wind", "weather-breeze", icons.clouds,
-        icons.few_clouds_day
-      ];
-    default:
-      return [ icons.alert ];
+      case "rain":
+        return [icons.rain, icons.showers_scattered, icons.rain_freezing];
+      case "snow":
+        return [icons.snow];
+      case "fog":
+        return [icons.fog];
+      case "cloudy":
+        return [icons.overcast, icons.clouds, icons.few_clouds_day];
+      case "partly-cloudy-night":
+        return [icons.few_clouds_night, icons.few_clouds_day];
+      case "partly-cloudy-day":
+        return [icons.few_clouds_day];
+      case "clear-night":
+        return [icons.clear_night];
+      case "clear-day":
+        return [icons.clear_day];
+      case "storm":
+        return [icons.storm];
+      case "showers":
+        return [icons.showers];
+      case "wind":
+        return [
+          "weather-wind",
+          "wind",
+          "weather-breeze",
+          icons.clouds,
+          icons.few_clouds_day
+        ];
+      default:
+        return [icons.alert];
     }
-  };
+  }
   SetQueryUnit() {
     if (this.app._temperatureUnit == "celsius") {
-      if (this.app._windSpeedUnit == "kph" ||
-          this.app._windSpeedUnit == "m/s") {
-        this.unit = 'si';
+      if (
+        this.app._windSpeedUnit == "kph" ||
+        this.app._windSpeedUnit == "m/s"
+      ) {
+        this.unit = "si";
       } else {
-        this.unit = 'uk2';
+        this.unit = "uk2";
       }
     } else {
-      this.unit = 'us';
+      this.unit = "us";
     }
-  };
+  }
   ToKelvin(temp) {
-    if (this.unit == 'us') {
+    if (this.unit == "us") {
       return FahrenheitToKelvin(temp);
     } else {
       return CelsiusToKelvin(temp);
     }
-  };
+  }
   ToMPS(speed) {
-    if (this.unit == 'si') {
+    if (this.unit == "si") {
       return speed;
     } else {
       return MPHtoMPS(speed);
     }
-  };
-};
+  }
+}
