@@ -5,5 +5,11 @@
   "description": "Sets brightness, gamma levels and color temperature with Redshift.",
   "multiversion": true,
   "max-instances": 1,
-  "cinnamon-version": ["3.8", "4.0", "4.2", "4.3", "4.4"]
+  "cinnamon-version": [
+    "3.8",
+    "4.0",
+    "4.2",
+    "4.3",
+    "4.4"
+  ]
 }
