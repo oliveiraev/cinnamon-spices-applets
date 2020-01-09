@@ -55,8 +55,8 @@ class OpenWeatherMap implements WeatherProvider {
     // A function as a function parameter 2 levels deep does not know
     // about the top level object information, has to pass it in as a paramater
     /**
-     * 
-     * @param baseUrl 
+     *
+     * @param baseUrl
      * @param ParseFunction returns WeatherData or ForecastData Object
      */
     private async GetData(baseUrl: string, ParseFunction: (json: any, context: any) => WeatherData | ForecastData[]): Promise<WeatherData | ForecastData[]> {
@@ -74,7 +74,7 @@ class OpenWeatherMap implements WeatherProvider {
 
             if (json == null) {
               this.app.HandleError({type: "soft", detail: "no api response", service: "openweathermap"});
-              return null;                 
+              return null;
           }
 
             if (json.cod == "200") {   // Request Success
@@ -87,7 +87,7 @@ class OpenWeatherMap implements WeatherProvider {
         }
         else {
           return null;
-        }       
+        }
     };
 
 
@@ -116,22 +116,22 @@ class OpenWeatherMap implements WeatherProvider {
             condition: {
               main: get(["weather", "0", "main"], json),
               description: get(["weather", "0", "description"], json),
-              icon: weatherIconSafely(self.ResolveIcon(get(["weather", "0", "icon"], json)), self.app._icon_type) 
+              icon: weatherIconSafely(self.ResolveIcon(get(["weather", "0", "icon"], json)), self.app._icon_type)
             },
             extra_field: {
               name: _("Cloudiness"),
-              value: get(["clouds", "all"], json),
+              value: json.clouds.all,
               type: "percent"
             },
             forecasts: []
           };
-          
-          return weather; 
+
+          return weather;
         }
-        catch(e) { 
+        catch(e) {
           self.app.log.Error("OpenWeathermap Weather Parsing error: " + e);
           self.app.HandleError({type: "soft", service: "openweathermap", detail: "unusal payload", message: _("Failed to Process Current Weather Info")})
-          return null; 
+          return null;
         }
     };
 
@@ -140,7 +140,7 @@ class OpenWeatherMap implements WeatherProvider {
       try {
         for (let i = 0; i < self.app._forecastDays; i++) {
           let day = json.list[i];
-          let forecast: ForecastData = {          
+          let forecast: ForecastData = {
               date: new Date(day.dt * 1000),
               temp_min: day.temp.min,
               temp_max: day.temp.max,
@@ -150,14 +150,14 @@ class OpenWeatherMap implements WeatherProvider {
                   icon: weatherIconSafely(self.ResolveIcon(day.weather[0].icon), self.app._icon_type),
               },
           };
-          forecasts.push(forecast);         
+          forecasts.push(forecast);
         }
         return forecasts;
       }
       catch(e) {
           self.app.log.Error("OpenWeathermap Forecast Parsing error: " + e);
           self.app.HandleError({type: "soft", service: "openweathermap", detail: "unusal payload", message: _("Failed to Process Forecast Info")})
-          return null; 
+          return null;
       }
     };
 
@@ -173,8 +173,8 @@ class OpenWeatherMap implements WeatherProvider {
             }
             return query;
         }
-        
-        this.app.HandleError({type: "hard", noTriggerRefresh: true, "detail": "no location", message: _("Please enter a Location in settings")});
+
+        this.app.HandleError({type: "hard", userError: true, "detail": "no location", message: _("Please enter a Location in settings")});
         this.app.log.Error("OpenWeatherMap: No Location was provided");
         return null;
     };
@@ -214,11 +214,11 @@ class OpenWeatherMap implements WeatherProvider {
               break;
             case("429"):
               error.detail = "key blocked";
-              error.message = _("If this problem persists, please contact the Author of this applet");    
+              error.message = _("If this problem persists, please contact the Author of this applet");
               break;
             default:
               error.detail = "unknown";
-              error.message = _("Unknown Error, please see the logs in Looking Glass");    
+              error.message = _("Unknown Error, please see the logs in Looking Glass");
               break;
         };
         this.app.HandleError(error);
@@ -231,7 +231,7 @@ class OpenWeatherMap implements WeatherProvider {
       if (error.code == 404) {
         uiError.detail = "location not found";
         uiError.message = _("Location not found, make sure location is available or it is in the correct format");
-        uiError.noTriggerRefresh = true;
+        uiError.userError = true;
         uiError.type = "hard";
       }
       return uiError;
@@ -240,9 +240,9 @@ class OpenWeatherMap implements WeatherProvider {
 
     private ResolveIcon(icon: string): string[] {
         // https://openweathermap.org/weather-conditions
-       /* fallback icons are: weather-clear-night 
-       weather-clear weather-few-clouds-night weather-few-clouds 
-       weather-fog weather-overcast weather-severe-alert weather-showers 
+       /* fallback icons are: weather-clear-night
+       weather-clear weather-few-clouds-night weather-few-clouds
+       weather-fog weather-overcast weather-severe-alert weather-showers
        weather-showers-scattered weather-snow weather-storm */
        switch (icon) {
            case "10d":/* rain day */
@@ -320,7 +320,7 @@ const openWeatherMapConditionLibrary = [
   _("Shower rain"),
   _("Heavy intensity shower rain"),
   _("Ragged shower rain"),
-  // Group 6xx: Snow 
+  // Group 6xx: Snow
   _("Light snow"),
   _("Snow"),
   _("Heavy snow"),
@@ -331,7 +331,7 @@ const openWeatherMapConditionLibrary = [
   _("Light shower snow"),
   _("Shower snow"),
   _("Heavy shower snow"),
-  // Group 7xx: Atmosphere 
+  // Group 7xx: Atmosphere
   _("Mist"),
   _("Smoke"),
   _("Haze"),
@@ -342,7 +342,7 @@ const openWeatherMapConditionLibrary = [
   _("Volcanic ash"),
   _("Squalls"),
   _("Tornado"),
-  // Group 800: Clear 
+  // Group 800: Clear
   _("Clear"),
   _("Clear sky"),
   _("Sky is clear"),

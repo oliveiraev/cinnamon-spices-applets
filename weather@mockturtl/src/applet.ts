@@ -50,8 +50,9 @@ var PressToUserUnits = utils.PressToUserUnits as (hpa: number, units: WeatherPre
 var compassDirection = utils.compassDirection as (deg: number) => string;
 var MPStoUserUnits = utils.MPStoUserUnits as (mps: number, units: WeatherWindSpeedUnits) => number;
 var nonempty = utils.nonempty as (str: string) => boolean;
+var AwareDateString = utils.AwareDateString as (date: Date, locale: string, hours24Format: boolean) => string;
 
-// This always evaluates to True because "var Promise" line exists inside 
+// This always evaluates to True because "var Promise" line exists inside
 if (typeof Promise != "function") {
   var promisePoly = importModule("promise-polyfill");
   var finallyConstructor = promisePoly.finallyConstructor;
@@ -171,7 +172,7 @@ class WeatherApplet extends Applet.TextIconApplet {
   private forecasts: Array < ForecastData > = [];
 
   ///////////////////////////////////////////////////////////////////////
-  ///////////////////////////////////////////////////////////////////////  
+  ///////////////////////////////////////////////////////////////////////
 
   // UI elements
   private _currentWeather: imports.gi.St.Bin;
@@ -227,9 +228,26 @@ class WeatherApplet extends Applet.TextIconApplet {
 
   private provider: WeatherProvider; // API
   private locProvider = new ipApi.IpApi(this); // IP location lookup
+
+  /** To check if data is up-to-date based on user-set refresh settings */
   private lastUpdated: Date = null;
   private orientation: any;
+  /** Used for error handling, first error calls dibs
+   * and stops diplaying the other errors after.
+   * Also used for counting consecutive errors
+   */
   private encounteredError: boolean = false;
+  /** true on errors what user interaction is required on an error.
+   * (usually on settings misconfiguration), refreshAndRebuild()
+   * clears it.
+   */
+  private pauseRefresh: boolean = false;
+  /** Slows main loop down on consecutive errors.
+   * loop seconds are multpilied by this value on errors.
+   */
+  private errorCount: number = 0;
+  /** in seconds */
+  private readonly LOOP_INTERVAL: number = 15;
 
   public constructor(metadata: any, orientation: any, panelHeight: number, instanceId: number) {
     super(orientation, panelHeight, instanceId);
@@ -240,7 +258,7 @@ class WeatherApplet extends Applet.TextIconApplet {
     this._httpSession.user_agent = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:37.0) Gecko/20100101 Firefox/37.0"; // ipapi blocks non-browsers agents, imitating browser
     Soup.Session.prototype.add_feature.call(this._httpSession, new Soup.ProxyResolverDefault());
 
-    this.SetAppletOnPanel(); 
+    this.SetAppletOnPanel();
     this.AddPopupMenu(orientation);
     this.BindSettings();
     this.AddRefreshButton();
@@ -276,7 +294,7 @@ class WeatherApplet extends Applet.TextIconApplet {
     {
       this.menu.actor.add_style_class_name(STYLE_WEATHER_MENU);
     }
-    
+
     this.menuManager.addMenu(this.menu)
   }
 
@@ -315,7 +333,7 @@ class WeatherApplet extends Applet.TextIconApplet {
   private AddRefreshButton(): void {
      let itemLabel = _("Refresh")
      let refreshMenuItem = new Applet.MenuItem(itemLabel, REFRESH_ICON, Lang.bind(this, function () {
-       this.refreshWeather();
+       this.refreshAndRebuild();
      }))
      this._applet_context_menu.addMenuItem(refreshMenuItem);
   }
@@ -339,11 +357,12 @@ class WeatherApplet extends Applet.TextIconApplet {
   }
 
   private refreshAndRebuild(): void {
+    this.pauseRefresh = false;
     this.refreshWeather(true);
   };
 
   /**
-   * Handles obtaining JSON over http. 
+   * Handles obtaining JSON over http.
    * returns HTTPError object on fail.
    * @param query fully contructed url
    */
@@ -352,18 +371,18 @@ class WeatherApplet extends Applet.TextIconApplet {
       let message = Soup.Message.new('GET', query);
       this._httpSession.queue_message(message, (session: any, message: any) => {
 
-        if (!message) 
+        if (!message)
           reject({code: 0, message: "no network response", reason_phrase: "no network response"} as HttpError);
 
-        if (message.status_code != 200) 
+        if (message.status_code != 200)
           reject({code: message.status_code, message: "bad status code", reason_phrase: message.reason_phrase } as HttpError)
-        
-        if (!message.response_body) 
+
+        if (!message.response_body)
           reject({code: message.status_code, message: "no reponse body", reason_phrase: message.reason_phrase} as HttpError);
-        
-        if (!message.response_body.data) 
+
+        if (!message.response_body.data)
           reject({code: message.status_code, message: "no respone data", reason_phrase: message.reason_phrase} as HttpError);
-        
+
         try {
           this.log.Debug("API full response: " + message.response_body.data.toString());
           let payload = JSON.parse(message.response_body.data);
@@ -392,11 +411,19 @@ class WeatherApplet extends Applet.TextIconApplet {
 
   /** Refresh Loop Hooked into MainLoop */
   private RefreshLoop(): void {
-    /** In seconds */
-    let loopInterval = 15;
+    if (this.encounteredError) {
+      this.encounteredError = false;
+      this.errorCount++;
+    }
+    // Means loop expands to 15mins max on consecutive errors
+    if (this.errorCount > 60) this.errorCount = 60;
+
+    let loopInterval = this.LOOP_INTERVAL;
+    // Increase loop timeout linearly with the number of errors
+    if (this.errorCount > 0) loopInterval = loopInterval*this.errorCount;
     try {
-      if (this.lastUpdated == null || this.encounteredError
-         || new Date(this.lastUpdated.getTime() + this._refreshInterval * 60000) < new Date()) {
+      if ((this.lastUpdated == null || this.errorCount > 0 || new Date(this.lastUpdated.getTime() + this._refreshInterval * 60000) < new Date())
+      && !this.pauseRefresh) {
         this.refreshWeather(false);
       }
     } catch (e) {
@@ -478,7 +505,7 @@ class WeatherApplet extends Applet.TextIconApplet {
 
   /**
    * Main function pulling data
-   * @param rebuild 
+   * @param rebuild
    */
   private async refreshWeather(rebuild: boolean): Promise < void > {
     this.encounteredError = false;
@@ -519,7 +546,8 @@ class WeatherApplet extends Applet.TextIconApplet {
       if (rebuild) this.rebuild();
       if (!await this.displayWeather() || !await this.displayForecast()) return;
       this.log.Print("Weather Information refreshed");
-    } 
+      this.errorCount = 0;
+    }
     catch (e) {
       this.log.Error("Generic Error while refreshing Weather info: " + e);
       this.HandleError({type: "hard", detail: "unknown", message: _("Unexpected Error While Refreshing Weather, please see log in Looking Glass")});
@@ -530,7 +558,7 @@ class WeatherApplet extends Applet.TextIconApplet {
     return;
   };
 
-  /** 
+  /**
    * @returns LocationData when automatic Location is on,
    * null if manual location is on and throws and error
    * if there is an issue with any of them
@@ -538,25 +566,25 @@ class WeatherApplet extends Applet.TextIconApplet {
   private async ValidateLocation(): Promise<LocationData> {
     // Autmatic location
     let location: LocationData = null;
-    if (!this._manualLocation) { 
+    if (!this._manualLocation) {
       location = await this.locProvider.GetLocation();
-      if (!location) reject(null);
+      if (!location) throw new Error(null);
 
       let loc = location.lat + "," + location.lon;
       this.settings.setValue('location', loc);
       return location;
 
     // Manual Location
-    } else { 
+    } else {
       // Verifying User Input
       let loc = this._location.replace(" ", "");
       if (loc == undefined || loc == "") {
         this.HandleError({
           type: "hard",
           detail: "no location",
-            noTriggerRefresh: true,
+            userError: true,
             message: _("Make sure you entered a location or use Automatic location instead")});
-        reject("No location given when setting is on Manual Location");
+        throw new Error("No location given when setting is on Manual Location");
       }
     }
     return null;
@@ -584,6 +612,7 @@ class WeatherApplet extends Applet.TextIconApplet {
     if (!!weatherInfo.location.city) this.weather.location.city = weatherInfo.location.city;
     if (!!weatherInfo.location.country) this.weather.location.country = weatherInfo.location.country;
     if (!!weatherInfo.location.timeZone) this.weather.location.timeZone = weatherInfo.location.timeZone;
+    if (!!weatherInfo.location.url) this.weather.location.url = weatherInfo.location.url;
     if (!!weatherInfo.extra_field) this.weather.extra_field = weatherInfo.extra_field;
     this.forecasts = weatherInfo.forecasts;
 
@@ -611,7 +640,7 @@ class WeatherApplet extends Applet.TextIconApplet {
         }
       }
 
-      // Displaying Location   
+      // Displaying Location
       let location = "";
       if (this.weather.location.city != null && this.weather.location.country != null) {
         location = this.weather.location.city + ", " + this.weather.location.country;
@@ -624,7 +653,7 @@ class WeatherApplet extends Applet.TextIconApplet {
         location = this._locationLabelOverride;
       }
 
-      this.set_applet_tooltip(location);
+      this.set_applet_tooltip(location + " - " + _("Updated") + " " + AwareDateString(this.weather.date, this.currentLocale, this._show24Hours));
 
       // Weather Condition
       this._currentWeatherSummary.text = descriptionCondition;
@@ -1017,11 +1046,13 @@ class WeatherApplet extends Applet.TextIconApplet {
       }
     }
 
-    if (error.noTriggerRefresh) {
-      this.encounteredError = false;
+    if (error.userError) {
+      this.pauseRefresh = true;
       return;
     }
-    this.log.Error("Retrying in the next 15 seconds...");
+
+    let nextRefresh = (this.errorCount > 0) ? this.errorCount++*this.LOOP_INTERVAL : this.LOOP_INTERVAL;
+    this.log.Error("Retrying in the next " + nextRefresh.toString() + " seconds..." );
   }
 
   /** Callback handles any service specific logic */
@@ -1033,7 +1064,7 @@ class WeatherApplet extends Applet.TextIconApplet {
       service: service
     } as AppletError;
 
-    if (typeof error === 'string' || error instanceof String) {   
+    if (typeof error === 'string' || error instanceof String) {
         ctx.log.Error("Error calling " + service + ": " + error.toString());
     }
     else {
@@ -1175,7 +1206,7 @@ interface Weather {
     /** In seconds */
     tzOffset: number,
     timeZone?: string,
-    /** url to open 
+    /** url to open
      * service portal set to user's location
      */
     url: string
@@ -1187,7 +1218,7 @@ interface Weather {
   /** preferably UTC */
   sunrise: Date,
   /** preferably UTC */
-  sunset: Date, 
+  sunset: Date,
   wind: {
     /** Meter/sec */
     speed: number,
@@ -1211,7 +1242,7 @@ interface Weather {
   extra_field?: {
     name: string,
     /**
-     * Refer to the type 
+     * Refer to the type
      */
     value: any,
     type: ExtraField
@@ -1258,7 +1289,7 @@ interface WeatherData {
   extra_field?: {
     name: string,
     /**
-     * Refer to the type 
+     * Refer to the type
      */
     value: any,
     type: ExtraField
@@ -1290,11 +1321,11 @@ interface LocationData {
   timeZone: string
 }
 
-/** 
+/**
  * percent: value is a number from 0-100 (or more)
- * 
+ *
  * temperature: value is number in Kelvin
- * 
+ *
  * string:  is a string
 */
 type ExtraField = "percent" | "temperature" | "string";
@@ -1316,7 +1347,7 @@ type SettingKeys = {
 interface WeatherProvider {
   GetWeather(): Promise<WeatherData>;
   /** Used as to extend the same named function in the Applet Class.
-   * 
+   *
    * "this" (context) is not accessible here
   */
   HandleHTTPError?:(error: HttpError, uiError: AppletError) => AppletError;
@@ -1324,7 +1355,8 @@ interface WeatherProvider {
 
 interface AppletError {
   type: ErrorSeverity;
-  noTriggerRefresh?: boolean;
+  /** Stops Refresh completely until settings have changed */
+  userError?: boolean;
   detail: ErrorDetail;
   code?: number;
   message?: string;
@@ -1338,14 +1370,14 @@ interface HttpError {
 }
 
 /** hard will not force a refresh and cleans the applet ui.
- * 
+ *
  *  soft will show a subtle hint that the refresh failed (NOT IMPLEMENTED)
  */
 type ErrorSeverity = "hard" |  "soft";
 type ApiService = "ipapi" | "darksky" | "openweathermap";
 type ErrorDetail = "no key" | "bad key" | "no location" | "bad location format" |
-  "location not found" | "no network response" | "no api response" | 
-  "bad api response - non json" | "bad api response" | "no reponse body" | 
+  "location not found" | "no network response" | "no api response" |
+  "bad api response - non json" | "bad api response" | "no reponse body" |
   "no respone data" | "unusal payload" | "key blocked"| "unknown" | "bad status code";
 type NiceErrorDetail = {
   [key in ErrorDetail]: string;

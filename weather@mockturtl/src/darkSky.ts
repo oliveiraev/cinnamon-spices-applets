@@ -42,7 +42,7 @@ class DarkSky implements WeatherProvider {
 
       // DarkSky Filter words for short conditions, won't work on every language
     private DarkSkyFilterWords = [_("and"), _("until"), _("in")];
-    
+
     private unit: queryUnits = null;
 
     private app: WeatherApplet
@@ -65,13 +65,13 @@ class DarkSky implements WeatherProvider {
             catch(e) {
                 this.app.HandleHTTPError("darksky", e, this.app, this.HandleHTTPError);
                 return null;
-            }        
-            
+            }
+
             if (!json) {
                 this.app.HandleError({type: "soft", detail: "no api response", service: "darksky"});
                 return null;
             }
-         
+
             if (!json.code) {                   // No code, Request Success
                 return this.ParseWeather(json);
             }
@@ -120,14 +120,14 @@ class DarkSky implements WeatherProvider {
             // Forecast
             for (let i = 0; i < this.app._forecastDays; i++) {
                 let day = json.daily.data[i];
-                let forecast: ForecastData = {          
-                    date: new Date(day.time * 1000),         
-                      temp_min: this.ToKelvin(day.temperatureLow),           
-                      temp_max: this.ToKelvin(day.temperatureHigh),           
+                let forecast: ForecastData = {
+                    date: new Date(day.time * 1000),
+                      temp_min: this.ToKelvin(day.temperatureLow),
+                      temp_max: this.ToKelvin(day.temperatureHigh),
                     condition: {
-                      main: this.GetShortSummary(day.summary),               
-                      description: this.ProcessSummary(day.summary),        
-                      icon: weatherIconSafely(this.ResolveIcon(day.icon), this.app._icon_type),               
+                      main: this.GetShortSummary(day.summary),
+                      description: this.ProcessSummary(day.summary),
+                      icon: weatherIconSafely(this.ResolveIcon(day.icon), this.app._icon_type),
                     },
                   };
 
@@ -157,13 +157,13 @@ class DarkSky implements WeatherProvider {
             this.app.log.Error("DarkSky: No API Key given");
             this.app.HandleError({
                 type: "hard",
-                 noTriggerRefresh: true,
+                 userError: true,
                   "detail": "no key",
                    message: _("Please enter API key in settings,\nor get one first on https://darksky.net/dev/register")});
             return "";
         }
         if (isCoordinate(location)) {
-            query = this.query + key + "/" + location + 
+            query = this.query + key + "/" + location +
             "?exclude=minutely,hourly,flags" + "&units=" + this.unit;
             this.app.log.Debug(this.app.systemLanguage);
             if (isLangSupported(this.app.systemLanguage, this.supportedLanguages) && this.app._translateCondition) {
@@ -173,7 +173,7 @@ class DarkSky implements WeatherProvider {
         }
         else {
             this.app.log.Error("DarkSky: Location is not a coordinate");
-            this.app.HandleError({type: "hard", detail: "bad location format", service:"darksky", noTriggerRefresh: true, message: ("Please Check the location,\nmake sure it is a coordinate") })
+            this.app.HandleError({type: "hard", detail: "bad location format", service:"darksky", userError: true, message: ("Please Check the location,\nmake sure it is a coordinate") })
             return "";
         }
     };
@@ -198,9 +198,9 @@ class DarkSky implements WeatherProvider {
     public HandleHTTPError(error: HttpError, uiError: AppletError): AppletError {
         if (error.code == 403) { // DarkSky returns auth error on the http level when key is wrong
             uiError.detail = "bad key"
-            uiError.message = _("Please Make sure you\nentered the API key correctly");
+            uiError.message = _("Please Make sure you\nentered the API key correctly and your account is not locked");
             uiError.type = "hard";
-            uiError.noTriggerRefresh = true;
+            uiError.userError = true;
         }
         return uiError;
     }
@@ -325,4 +325,3 @@ class DarkSky implements WeatherProvider {
  * - 'uk2' return miles/hour and Celsius
  */
 type queryUnits = 'si' | 'us' | 'uk2';
-

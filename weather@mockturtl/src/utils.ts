@@ -62,7 +62,7 @@ var GetDayName = function(date: Date, locale:string, tz?: string): string {
 
     switch(support) {
         case "full":
-            return date.toLocaleString(locale, {timeZone: tz, weekday: "long"}); 
+            return date.toLocaleString(locale, {timeZone: tz, weekday: "long"});
         case "notz":
             return date.toLocaleString(locale, {timeZone: "UTC", weekday: "long"});
         case "none":
@@ -83,6 +83,33 @@ var GetHoursMinutes = function(date: Date, locale: string, hours24Format: boolea
         case "none":
             return timeToUserUnits(date, hours24Format);
     }
+}
+
+var AwareDateString = function(date: Date, locale: string, hours24Format: boolean): string {
+    let support: localeStringSupport = isLocaleStringSupported();
+    let now = new Date();
+    let params: any = {
+      hour: "numeric",
+      minute: "numeric",
+      hour12: !hours24Format
+    };
+
+    if (date.toDateString() != now.toDateString()) {
+      params.month = "short";
+      params.day = "numeric";
+    }
+
+    if (date.getFullYear() != now.getFullYear()) {
+      params.year = "numeric";
+    }
+
+    switch(support) {
+      case "full":
+      case "notz":
+          return date.toLocaleString(locale, {hour: "numeric", minute: "numeric", hour12: !hours24Format});
+      case "none":
+          return timeToUserUnits(date, hours24Format);  // Displaying only time
+  }
 }
 
 var getDayName = function(dayNum: number): string {
