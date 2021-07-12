@@ -1,19 +1,21 @@
-import { Channel, IconType } from "types";
+import { Channel, IconType } from "./types";
 
 const { AppletSettings } = imports.ui.settings;
 
 interface Arguments {
     uuid: string,
     instanceId: number,
-    onIconChanged: { (iconType: IconType): void },
-    onIconColorChanged: { (color: string): void },
-    onChannelOnPanelChanged: { (channelOnPanel: boolean): void },
-    onMyStationsChanged: { (stations: Channel[]): void },
+    onIconChanged: (iconType: IconType) => void,
+    onIconColorPlayingChanged: (color: string) => void,
+    onIconColorPausedChanged: (color: string) => void,
+    onChannelOnPanelChanged: (channelOnPanel: boolean) => void,
+    onMyStationsChanged: (stations: Channel[]) => void,
 }
 
-export interface Settings {
+interface Settings {
     iconType: IconType,
     symbolicIconColorWhenPlaying: string,
+    symbolicIconColorWhenPaused: string,
     channelNameOnPanel: boolean,
     customInitVolume: number,
     keepVolume: boolean,
@@ -30,7 +32,8 @@ export const createConfig = (args: Arguments) => {
         uuid,
         instanceId,
         onIconChanged,
-        onIconColorChanged,
+        onIconColorPlayingChanged,
+        onIconColorPausedChanged,
         onChannelOnPanelChanged,
         onMyStationsChanged,
     } = args
@@ -41,15 +44,15 @@ export const createConfig = (args: Arguments) => {
     } as Settings
 
     const appletSettings = new AppletSettings(settingsObject, uuid, instanceId)
-    // TODO why does this not work (a function is printed)?
-    //const { bind } = appletSettings
-    // global.log(`bind: ${bind.toString()}`)
 
     appletSettings.bind('icon-type', 'iconType',
         (iconType: IconType) => onIconChanged(iconType))
 
     appletSettings.bind('color-on', 'symbolicIconColorWhenPlaying',
-        (newColor: string) => onIconColorChanged(newColor))
+        (newColor: string) => onIconColorPlayingChanged(newColor))
+
+    appletSettings.bind('color-paused', 'symbolicIconColorWhenPaused',
+        (newColor: string) => onIconColorPausedChanged(newColor))
 
     appletSettings.bind('channel-on-panel', 'channelNameOnPanel',
         (channelOnPanel: boolean) => onChannelOnPanelChanged(channelOnPanel))
@@ -68,9 +71,6 @@ export const createConfig = (args: Arguments) => {
     appletSettings.bind('music-download-dir-select', 'musicDownloadDir',
         () => handleMusicDirChanged())
 
-    // TODO: add proxy to prevent unwanted access (e.g. it is not necessary to have acces to customInitVolume outside of this function)
-
-
     function getInitialVolume() {
         const {
             keepVolume,
@@ -78,17 +78,32 @@ export const createConfig = (args: Arguments) => {
             customInitVolume
         } = settingsObject
 
-        const initialVolume = keepVolume ? lastVolume : customInitVolume
+        let initialVolume = keepVolume ? lastVolume : customInitVolume
+
+        if (initialVolume == null) {
+            global.logWarning('initial Volume was null or undefined. Applying 50 as a fallback solution to prevent radio stop working')
+            initialVolume = 50
+        }
+
+
         return initialVolume
     }
 
-
     function handleMusicDirChanged() {
+
         // By Default the value is set to ~/Music/Radio but when changing to another location and back again to the default value in the settings dialog, the music dir is set to null instead of the default value again. As workaround the music dir is set programmatically to default value again if value is set to null (and the settings dialog can't be opened anymore). 
         if (settingsObject.musicDownloadDir === null) {
             settingsObject.musicDownloadDir = "~/Music/Radio"
         }
     }
+
+
+    onIconChanged(settingsObject.iconType)
+    onIconColorPlayingChanged(settingsObject.symbolicIconColorWhenPlaying)
+    onIconColorPausedChanged(settingsObject.symbolicIconColorWhenPaused)
+    onChannelOnPanelChanged(settingsObject.channelNameOnPanel)
+
+    // TODO also onMyStationChanged should be called (and removed as arg from  ChannelStore)
 
     return settingsObject
 

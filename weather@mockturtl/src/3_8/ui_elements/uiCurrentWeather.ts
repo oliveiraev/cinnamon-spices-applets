@@ -1,12 +1,13 @@
-import { OpenUrl } from "lib/commandRunner";
-import { Config } from "config";
-import { ELLIPSIS, APPLET_ICON, SIGNAL_CLICKED, BLANK } from "consts";
-import { LocationStore } from "location_services/locationstore";
-import { Log } from "lib/logger";
-import { WeatherApplet } from "main";
-import { WeatherData, APIUniqueField, BuiltinIcons, ImmediatePrecipitation } from "types";
-import { _, GetHoursMinutes, TempToUserConfig, CompassDirection, MPStoUserUnits, PressToUserUnits, GenerateLocationText, delay, WeatherIconSafely, LocalizedColon, PrecentToLocale, CompassDirectionText } from "utils";
-import { WeatherButton } from "ui_elements/weatherbutton";
+import { OpenUrl } from "../lib/commandRunner";
+import { Config } from "../config";
+import { ELLIPSIS, APPLET_ICON, SIGNAL_CLICKED, BLANK } from "../consts";
+import { LocationStore } from "../location_services/locationstore";
+import { Logger } from "../lib/logger";
+import { WeatherApplet } from "../main";
+import { WeatherData, APIUniqueField, BuiltinIcons, ImmediatePrecipitation } from "../types";
+import { _, GetHoursMinutes, TempToUserConfig, CompassDirection, MPStoUserUnits, PressToUserUnits, GenerateLocationText, delay, WeatherIconSafely, LocalizedColon, PrecentToLocale, CompassDirectionText } from "../utils";
+import { WeatherButton } from "../ui_elements/weatherbutton";
+import { DateTime } from "luxon";
 
 const { Bin, BoxLayout, IconType, Label, Icon, Align } = imports.gi.St;
 const Lang: typeof imports.lang = imports.lang;
@@ -46,7 +47,6 @@ export class CurrentWeather {
 	private pressureLabel: imports.gi.St.Label;
 	private windLabel: imports.gi.St.Label;
 	private windDirectionIcon: imports.gi.St.Icon;
-	private windDirectionLabel: imports.gi.St.Label;
 	private apiUniqueLabel: imports.gi.St.Label;
 	private apiUniqueCaptionLabel: imports.gi.St.Label;
 
@@ -84,7 +84,7 @@ export class CurrentWeather {
 			this.SetImmediatePrecipitation(weather.immediatePrecipitation, config);
 			return true;
 		} catch (e) {
-			Log.Instance.Error("DisplayWeatherError: " + e);
+			Logger.Error("DisplayWeatherError: " + e, e);
 			return false;
 		}
 	};
@@ -201,8 +201,8 @@ export class CurrentWeather {
 		this.location = this.locationButton.actor;
 		this.location.connect(SIGNAL_CLICKED, () => {
 			if (this.app.encounteredError) this.app.RefreshWeather(true);
-			else if (this.location.url == null) return;
-			else OpenUrl(this.location);
+			else if (this.locationButton.url == null) return;
+			else OpenUrl(this.locationButton);
 		});
 
 		this.nextLocationButton = new WeatherButton({
@@ -308,7 +308,7 @@ export class CurrentWeather {
 		}
 	}
 
-	private SetSunriseAndSunset(sunrise: Date, sunset: Date, tz: string): void {
+	private SetSunriseAndSunset(sunrise: DateTime, sunset: DateTime, tz: string): void {
 		let sunriseText = "";
 		let sunsetText = "";
 		if (sunrise != null && sunset != null && this.app.config._showSunrise) {
@@ -393,7 +393,7 @@ export class CurrentWeather {
 
 	private SetLocation(locationString: string, url: string) {
 		this.location.label = locationString;
-		this.location.url = url;
+		this.locationButton.url = url;
 		if (!url) this.locationButton.disable();
 	}
 
@@ -410,7 +410,7 @@ export class CurrentWeather {
 	}
 
 	private onLocationStorageChanged(sender: LocationStore, itemCount: number): void {
-		Log.Instance.Debug("On location storage callback called, number of locations now " + itemCount.toString());
+		Logger.Debug("On location storage callback called, number of locations now " + itemCount.toString());
 		// Hide/show location selectors based on how many items are in storage
 		if (this.app.config.LocStore.ShouldShowLocationSelectors(this.app.config.CurrentLocation))
 			this.ShowLocationSelectors();

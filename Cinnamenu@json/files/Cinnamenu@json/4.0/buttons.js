@@ -122,9 +122,12 @@ class CategoryButton {
         //-----some style tweaks for menu-category-button-hover class.-----
         let themePath = Main.getThemeStylesheet();
         if (!themePath) themePath = 'Cinnamon default';
-        [['/Mint-Y',            'background-color: #d8d8d8; color: black;'],
-        ['/Mint-Y-Dark',        'background-color: #404040;'],
-        ['/Mint-X',             'background-color: #d4d4d4; color: black; border-image: none;'],
+        [
+        ['/Mint-Y',             'background-color: #d8d8d8; color: black;'],//Mint-Y & Mint-Y-<color>
+        ['/Mint-Y-Dark',        'background-color: #404040;'],//Mint-Y-Dark & Mint-Y-Dark-<color>
+        ['/Mint-X/',            'background-color: #d4d4d4; color: black; border-image: none;'],
+        ['/Mint-X-',            'background-color: #d4d4d4; color: black; border-image: none;'],//Mint-X-<color>
+        ['/Mint-X-Dark',        ''],//undo previous '/Mint-X-' changes for '/Mint-X-Dark'
         ['/Linux Mint/',        'box-shadow: none; background-gradient-end: rgba(90, 90, 90, 0.5);'],
         ['Cinnamon default',    'background-gradient-start: rgba(255,255,255,0.03); ' +
                                                     'background-gradient-end: rgba(255,255,255,0.03);'],
@@ -132,14 +135,20 @@ class CategoryButton {
         ['/Adapta-Maia/',       'color: #263238; background-color: rgba(38, 50, 56, 0.12)'],
         ['/Adapta-Nokto-Maia/', 'color: #CFD8DC; background-color: rgba(207, 216, 220, 0.12);'],
         ['/Adapta-Nokto/',      'background-color: rgba(207, 216, 220, 0.12); color: #CFD8DC'],
-        ['/Cinnamox-',          'background-color: rgba(255,255,255,0.2);'],
+        ['/Cinnamox-',          'background-color: rgba(255,255,255,0.2);'],//Cinnamox- themes
         ['/Eleganse/',          'background-gradient-start: rgba(255,255,255,0.08); box-shadow: none;'],
         ['/Eleganse-dark/',     'background-gradient-start: rgba(255,255,255,0.08); box-shadow: none;'],
-        ['/iOS-X/',             'color: rgb(70, 70, 70); background-color: #C9CCEE; ' +
-                                                    'border-image: none; border-radius: 3px;' ],
-        ['/Vivaldi',            'background-color: rgba(50,50,50,1);'],
-        ['/Yaru-Cinnamon-Light/', 'background-color: #d8d8d8; color: black;'],
-        ['/Yaru-Cinnamon-Dark/', 'background-color: #404040;']
+        ['/Monternos/',         'color: rgb(70, 70, 70); background-color: rgb(201, 204, 238); ' +
+                                                                                'border-image: none;'],
+        ['/Vivaldi',            'background-color: rgba(50,50,50,1);'],//Vivaldi & Vivaldi-ZorinOS
+        //Yaru are ubuntu cinnamon themes:
+        ['/Yaru-Cinnamon-Light/','background-color: #d8d8d8; color: black;'],
+        ['/Yaru-Cinnamon-Dark/','background-color: #404040;'],
+        ['/Matcha-',            'background-color: white'],//other Matcha- and Matcha-light- themes
+        ['/Matcha-dark-aliz',   'background-color: #2d2d2d'],
+        ['/Matcha-dark-azul',   'background-color: #2a2d36'],
+        ['/Matcha-dark-sea',    'background-color: #273136'],
+        ['/Matcha-dark-cold',   'background-color: #282b33']
         ].forEach(fix => {
             if (themePath.includes(fix[0])) {
                 this.actor.set_style(fix[1]);
@@ -320,6 +329,7 @@ class ContextMenu {
         // e is undefined and button position is used instead.
         this.contextMenuButtons.forEach(button => button.destroy());
         this.contextMenuButtons = [];
+
         //------populate menu
         if (isACategoryButton) {
             const addMenuItem = (item) => {
@@ -568,9 +578,10 @@ class AppButton {
         //----------ICON---------------------------------------------
         if (this.app.icon) { //isSearchResult(excl. emoji), isClearRecentsButton
             this.icon = this.app.icon;
-        } else if (this.app.gicon) { //isRecentFile, isFavoriteFile, isWebBookmark, isFolderviewFile/Directory
+        } else if (this.app.gicon) { //isRecentFile, isFavoriteFile, isWebBookmark,
+                                    //isFolderviewFile/Directory, isSearchResult(wikipedia)
             let gicon = this.app.gicon;
-            if (!this.app.isWebBookmark) {
+            if (!this.app.isWebBookmark && !this.app.isSearchResult) {
                 gicon = getThumbnail_gicon(this.app.uri, this.app.mimeType) || gicon;
             }
             this.icon = new St.Icon({ gicon: gicon, icon_size: this.appThis.getAppIconSize()});
@@ -596,15 +607,21 @@ class AppButton {
         this.label = new St.Label({ style_class: 'menu-application-button-label' });
         //menu-application-button-label in themes are designed for list view and may have uneven
         //padding, so in grid view make padding symmetrical and center text
+        let labelStyle = '';
         if (!isListView) {
-            this.label.style = 'padding-right: 2px; padding-left: 2px; text-align: center;';
+            labelStyle = 'padding-right: 2px; padding-left: 2px; text-align: center; ';
         }
+        if (this.app.isClearRecentsButton) {
+            labelStyle += 'font-weight: bold;';
+        }
+        this.label.style = labelStyle;
         //set label text
         let name = this.app.name.replace(/&/g, '&amp;').replace(/</g, '&lt;');
         let description = this.app.description ?
                             this.app.description.replace(/&/g, '&amp;').replace(/</g, '&lt;') : '';
         let markup = '<span>' + name + '</span>';
         if (this.appThis.settings.descriptionPlacement === PlacementUNDER && description) {
+            description = description.replace(/\n/g, ' ');//remove formatting intended for tooltip
             markup += '\n<span size="small">' + description + '</span>';
         }
         const clutterText = this.label.get_clutter_text();
@@ -703,10 +720,11 @@ class AppButton {
         if (!this.appThis.settings.useTileStyle) {
             return;
         }
+
         const toRgbaString = (col) => {
                 const decPlaces2 = (n) => Math.round(n * 100) / 100;
                 return `rgba(${col.red},${col.green},${col.blue},${decPlaces2(col.alpha / 255)})`; };
-        const lightenOrDarkenColor = (col) => { //lighten dark color or darken light color
+        const lightenOrDarkenColor = (col) => { //lighten a dark color or darken a light color
                     const isLightTheme = (col.red + col.green + col.blue) > 364;
                     const amt = isLightTheme ? -15 : 15;
                     col.red += amt;

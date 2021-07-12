@@ -1,5 +1,34 @@
 # Changelog
 
+## 3.1.0
+
+* Migrate to Webpack
+* Improve error logging
+* Use SunCalc from npm so it can receive updates
+* Use Luxon for Dates with timezones (finally) so Local timezone and requested location timezone's mismatch can be handled much better
+* Fix US Weather logic on deciding where to start processing daily forecasts from. For real this time? [#3806](https://github.com/linuxmint/cinnamon-spices-applets/issues/3806)
+* Hopefully it will fix [#3817](https://github.com/linuxmint/cinnamon-spices-applets/issues/3817) by the better TZ handling.
+* Remove Climacell V3 as it has reached it's end of life
+
+## 3.0.10
+
+* Fixes [#3815](https://github.com/linuxmint/cinnamon-spices-applets/issues/3815)
+
+## 3.0.9
+
+* Fixes [#3806](https://github.com/linuxmint/cinnamon-spices-applets/issues/3806)
+* Update applet to new declarations
+* Remove yahoo weather
+
+## 3.0.8
+
+* Fixes [#3787](https://github.com/linuxmint/cinnamon-spices-applets/issues/3787)
+
+## 3.0.7
+
+* Resolves [#3783](https://github.com/linuxmint/cinnamon-spices-applets/issues/3783)
+* Fixes wrong filename for declaration file (global.ts -> global.d.ts) causing all kinds of issues
+
 ## 3.0.6
 
 * Resolves [#3694](https://github.com/linuxmint/cinnamon-spices-applets/issues/3694)

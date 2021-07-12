@@ -1,4 +1,5 @@
-import { Log } from "lib/logger";
+import { Logger } from "./logger";
+import { WeatherButton } from "../ui_elements/weatherbutton";
 
 const { spawnCommandLineAsyncIO } = imports.misc.util;
 
@@ -14,7 +15,7 @@ export async function SpawnProcessJson<TData>(command: string[]): Promise<TypedR
 		response.Data = JSON.parse(response.Data);
 	}
 	catch (e) {
-		Log.Instance.Error("Error: Command response is not JSON. The response: " + response.Data);
+		Logger.Error("Error: Command response is not JSON. The response: " + response.Data, e);
 		response.Success = false;
 		response.ErrorData = {
 			Code: -1,
@@ -59,7 +60,7 @@ export async function SpawnProcess(command: string[]): Promise<GenericResponse> 
 	return response as GenericResponse;
 }
 
-export function OpenUrl(element: imports.gi.St.Button) {
+export function OpenUrl(element: WeatherButton) {
 	if (!element.url) return;
 	imports.gi.Gio.app_info_launch_default_for_uri(
 		element.url,
