@@ -1,0 +1,90 @@
+# MULTI-CORE SYSTEM MONITOR
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# ccadeptic23, 2016
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: https://github.com/linuxmint/cinnamon-spices-applets/"
+"issues\n"
+"POT-Creation-Date: 2026-05-06 22:48+0200\n"
+"PO-Revision-Date: 2026-05-06 17:12+0200\n"
+"Last-Translator: Alan Mortensen <over.tackiness223@passinbox.com>\n"
+"Language-Team: \n"
+"Language: da\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.4.2\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: po\n"
+
+#. 5.6/applet.js:58
+msgid "Load:"
+msgstr ""
+
+#. 5.6/applet.js:59
+msgid "Unload:"
+msgstr ""
+
+#. 5.6->settings-schema.json->sectionCPULoadAverage->title
+msgid "Average Load"
+msgstr ""
+
+#. 5.6->settings-schema.json->tooltipChangeBackgroundColor->description
+msgid "Change Tooltip Background Color"
+msgstr ""
+
+#. 5.6->settings-schema.json->tooltipChangeBackgroundColor->tooltip
+msgid ""
+"Uncheck this box to use the Tooltip Background Color defined by the theme."
+msgstr ""
+
+#. 5.6->settings-schema.json->tooltipBackgroundColor->description
+msgid "Tooltip Background Color"
+msgstr ""
+
+#. 5.6->settings-schema.json->CPU_showLoadAverage->description
+msgid "Show the CPU average load"
+msgstr ""
+
+#. 5.6->settings-schema.json->CPU_loadAverageHigh->description
+msgid "High CPU Load (%)"
+msgstr ""
+
+#. 5.6->settings-schema.json->CPU_loadAverageCrit->description
+msgid "Critical CPU Load (%)"
+msgstr ""
+
+#. 5.6->settings-schema.json->CPU_loadAverageCrit->tooltip
+msgid ""
+"Refer to your CPU documentation.\n"
+"Must be greater than the High CPU Load."
+msgstr ""
+
+#. 5.6->settings-schema.json->CPU_loadAverageColor->description
+msgid "Normal Average Load Color"
+msgstr ""
+
+#. 5.6->settings-schema.json->CPU_loadAverageColorHigh->description
+msgid "High Average Load Color"
+msgstr ""
+
+#. 5.6->settings-schema.json->CPU_loadAverageColorCrit->description
+msgid "Critical Average Load Color"
+msgstr ""
+
+#. 5.6->settings-schema.json->CPU_loadAverageCorner->description
+msgid "Corner in which to display the average load"
+msgstr ""
+
+#. 5.6->settings-schema.json->Battery_colorLoad->description
+msgid "Load"
+msgstr ""
+
+#. 5.6->settings-schema.json->Battery_colorUnload->description
+msgid "Unload"
+msgstr ""
